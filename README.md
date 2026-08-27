@@ -116,7 +116,7 @@ Chinese and other Unicode text are supported because all inputs and outputs use 
   "news": {
     "title": "News",
     "output": "news.xml",
-    "retention_days": 7
+    "retention_hours": 24
   },
   "research": {
     "title": "Research",
@@ -143,6 +143,7 @@ Then add items with `"category":"technology"`. No Python code change is required
 
 Each channel can use:
 
+- `retention_hours`: remove items older than this many hours
 - `retention_days`: remove items older than this many days
 - `max_items`: keep only the newest N items
 
@@ -198,7 +199,8 @@ The first enabled discovery source follows the HK01 international news page:
   "name": "香港01 國際",
   "url": "https://www.hk01.com/zone/4/%E5%9C%8B%E9%9A%9B",
   "zone_id": "4",
-  "category": "news"
+  "category": "news",
+  "lookback_hours": 24
 }
 ```
 
@@ -209,7 +211,7 @@ python discover_items.py
 python rss_aggregator.py
 ```
 
-The scheduled GitHub Action does the same thing automatically. It commits `items.discovered.jsonl`, `processed_links.txt`, and the generated `public/` feeds so recently discovered items stay available until retention removes them.
+The scheduled GitHub Action does the same thing automatically once per hour. It commits `items.discovered.jsonl`, `processed_links.txt`, and the generated `public/` feeds so recently discovered items stay available until retention removes them.
 
 Discovery source types currently supported:
 
@@ -219,6 +221,7 @@ Discovery source types currently supported:
 Simple filtering/ranking fields are available per source:
 
 - `lookback_days`
+- `lookback_hours`
 - `max_items_per_source`
 - `include_keywords`
 - `exclude_keywords`

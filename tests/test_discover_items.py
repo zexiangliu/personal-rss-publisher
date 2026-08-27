@@ -50,6 +50,33 @@ class DiscoverItemsTests(unittest.TestCase):
         self.assertEqual(item["url"], "https://www.hk01.com/即時國際/123/example")
         self.assertEqual(item["image_url"], "https://cdn.hk01.com/example.jpg")
 
+    def test_hk01_article_respects_lookback_hours(self):
+        article = {
+            "articleId": 789,
+            "title": "Older article",
+            "canonicalUrl": "/即時國際/789/example",
+            "description": "Older summary",
+            "publishTime": int(datetime(2026, 8, 26, 11, 59, tzinfo=timezone.utc).timestamp()),
+        }
+        source = {
+            "url": "https://www.hk01.com/zone/4/%E5%9C%8B%E9%9A%9B",
+            "category": "news",
+            "lookback_hours": 24,
+        }
+        defaults = {
+            "lookback_days": 7,
+            "lookback_hours": None,
+            "summary_max_chars": 600,
+            "include_keywords": [],
+            "exclude_keywords": [],
+            "rank_keywords": {},
+            "min_score": 0,
+        }
+
+        candidate = normalize_hk01_article(article, source, defaults, "香港01 國際", NOW)
+
+        self.assertIsNone(candidate)
+
     def test_discovers_hk01_items_and_skips_known_urls(self):
         with tempfile.TemporaryDirectory() as tmp:
             tmp_path = Path(tmp)

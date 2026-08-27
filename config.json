@@ -18,7 +18,7 @@
       "title": "News",
       "description": "Curated personal news items.",
       "output": "news.xml",
-      "retention_days": 7
+      "retention_hours": 24
     },
     "research": {
       "title": "Research",

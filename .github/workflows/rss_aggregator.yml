@@ -2,7 +2,7 @@ name: Personal RSS Publisher
 
 on:
   schedule:
-    - cron: "37 13 * * *"
+    - cron: "37 * * * *"
   workflow_dispatch:
 
 concurrency:

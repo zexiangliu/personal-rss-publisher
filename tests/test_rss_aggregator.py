@@ -60,14 +60,21 @@ class RssPublisherTests(unittest.TestCase):
                     "title": "Fresh news",
                     "url": "https://example.com/fresh",
                     "category": "news",
-                    "published_at": "2026-08-26T00:00:00Z",
+                    "published_at": "2026-08-27T00:00:00Z",
+                },
+                {
+                    "id": "stale-hourly-news",
+                    "title": "Stale hourly news",
+                    "url": "https://example.com/stale-hourly",
+                    "category": "news",
+                    "published_at": "2026-08-26T11:59:00Z",
                 },
                 {
                     "id": "duplicate-older",
                     "title": "Duplicate older",
                     "url": "https://example.com/fresh",
                     "category": "news",
-                    "published_at": "2026-08-25T00:00:00Z",
+                    "published_at": "2026-08-26T23:00:00Z",
                 },
                 {
                     "id": "paper",
@@ -80,7 +87,7 @@ class RssPublisherTests(unittest.TestCase):
         )
         config = {
             "feeds": {
-                "news": {"retention_days": 7},
+                "news": {"retention_hours": 24},
                 "research": {"max_items": 100},
                 "investing": {"max_items": 100},
             },

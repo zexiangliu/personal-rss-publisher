@@ -7,6 +7,7 @@
   "defaults": {
     "enabled": false,
     "lookback_days": 7,
+    "lookback_hours": 24,
     "max_items_per_source": 20,
     "summary_max_chars": 600,
     "min_score": 0,
@@ -22,7 +23,7 @@
       "url": "https://www.hk01.com/zone/4/%E5%9C%8B%E9%9A%9B",
       "zone_id": "4",
       "category": "news",
-      "lookback_days": 7,
+      "lookback_hours": 24,
       "max_items_per_source": 20
     }
   ]

@@ -46,6 +46,7 @@ def load_config(path: Path = DEFAULT_CONFIG_PATH) -> dict[str, Any]:
     defaults = config["defaults"]
     defaults.setdefault("enabled", False)
     defaults.setdefault("lookback_days", 7)
+    defaults.setdefault("lookback_hours", None)
     defaults.setdefault("max_items_per_source", 10)
     defaults.setdefault("summary_max_chars", 600)
     defaults.setdefault("min_score", 0)
@@ -219,8 +220,7 @@ def normalize_hk01_article(
     else:
         published_at = now
 
-    lookback_days = int(source.get("lookback_days", defaults["lookback_days"]))
-    if published_at < now - timedelta(days=lookback_days):
+    if published_at < now - lookback_window(source, defaults):
         return None
 
     summary = clean_summary(
@@ -268,6 +268,16 @@ def hk01_image_url(article: dict[str, Any]) -> str:
     return ""
 
 
+def lookback_window(source: dict[str, Any], defaults: dict[str, Any]) -> timedelta:
+    if source.get("lookback_hours") is not None:
+        return timedelta(hours=float(source["lookback_hours"]))
+    if source.get("lookback_days") is not None:
+        return timedelta(days=float(source["lookback_days"]))
+    if defaults.get("lookback_hours") is not None:
+        return timedelta(hours=float(defaults["lookback_hours"]))
+    return timedelta(days=float(defaults["lookback_days"]))
+
+
 def normalize_entry(
     entry: Any,
     source: dict[str, Any],
@@ -282,8 +292,7 @@ def normalize_entry(
         return None
 
     published_at = entry_datetime(entry, now)
-    lookback_days = int(source.get("lookback_days", defaults["lookback_days"]))
-    if published_at < now - timedelta(days=lookback_days):
+    if published_at < now - lookback_window(source, defaults):
         return None
 
     raw_summary = entry.get("summary") or entry.get("description") or ""

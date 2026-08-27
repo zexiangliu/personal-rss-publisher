@@ -302,15 +302,23 @@ def apply_retention(
     items: list[NormalizedItem], policy: dict[str, Any], now: datetime
 ) -> list[NormalizedItem]:
     retained = sort_items(items)
-    retention_days = policy.get("retention_days")
-    if retention_days is not None:
-        cutoff = now - timedelta(days=int(retention_days))
+    retention_delta = retention_window(policy)
+    if retention_delta is not None:
+        cutoff = now - retention_delta
         retained = [item for item in retained if item.published_at >= cutoff]
 
     max_items = policy.get("max_items")
     if max_items is not None:
         retained = retained[: int(max_items)]
     return retained
+
+
+def retention_window(policy: dict[str, Any]) -> timedelta | None:
+    if policy.get("retention_hours") is not None:
+        return timedelta(hours=float(policy["retention_hours"]))
+    if policy.get("retention_days") is not None:
+        return timedelta(days=float(policy["retention_days"]))
+    return None
 
 
 def write_outputs(
