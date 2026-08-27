@@ -296,6 +296,19 @@ Topics are free-form: publishing to a topic that isn't in `config.json`'s
 `feeds` still works — it gets `default_feed`'s retention policy and a
 `<topic>.xml` feed is generated automatically.
 
+On a successful `publish_item`, the server also regenerates the feeds
+(`.venv/bin/python3 rss_aggregator.py` in-process) and runs `git add` +
+`git commit` + `git push` for the affected files (`items.agent.jsonl`,
+`public/`, `processed_links.txt`) — no manual commit step needed, GitHub
+Pages picks it up on the next deploy. If `push` is rejected because the
+hourly discovery Action committed in the meantime, it fetches, rebases onto
+the new commit, regenerates the feeds again against the merged inputs, and
+retries once; if that still fails (or the rebase itself conflicts), the tool
+response's `git` field reports it so you can resolve it by hand. The
+response's `status` field always reflects whether the item itself was
+accepted (`published`/`duplicate`/`quota_exceeded`/`invalid`) independent of
+whether the git sync succeeded.
+
 Run the server directly for debugging with `./run_mcp_server.sh` (after
 `./setup.sh`), which launches `mcp_server.py` with the local venv's
 interpreter no matter what directory it's invoked from.
@@ -323,10 +336,6 @@ between project and system-wide scope, or repoint things after moving the
 repo — all the writes are idempotent. To remove a registration, use each
 agent's own tooling, e.g. `claude mcp remove personal-rss -s <project|user>`
 for Claude Code.
-
-After a publishing session, regenerate feeds locally with
-`.venv/bin/python3 rss_aggregator.py` and commit `items.agent.jsonl` and
-`public/` the same way you would commit a manual `items.jsonl` edit.
 
 ## GitHub Pages
 

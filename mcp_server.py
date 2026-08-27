@@ -14,6 +14,8 @@ from __future__ import annotations
 
 import json
 import os
+import subprocess
+from collections.abc import Callable
 from dataclasses import asdict, dataclass
 from datetime import datetime, timezone
 from pathlib import Path
@@ -23,11 +25,14 @@ from mcp.server.mcpserver import MCPServer
 
 from discover_items import append_jsonl, load_known_urls
 from rss_aggregator import DEFAULT_CONFIG_PATH, load_config, normalize_url, stable_guid
+from rss_aggregator import publish as rss_publish
+
+REPO_DIR = Path(__file__).resolve().parent
 
 # Resolve every relative path (config.json, items.*.jsonl, ...) against the
 # repo root regardless of the working directory the MCP client launched us
 # from.
-os.chdir(Path(__file__).resolve().parent)
+os.chdir(REPO_DIR)
 
 server = MCPServer("personal-rss-publisher")
 
@@ -39,6 +44,77 @@ class PublishResult:
     item_id: str = ""
     topic: str = ""
     remaining_quota: int | None = None
+
+
+@dataclass(frozen=True)
+class SyncResult:
+    committed: bool
+    pushed: bool
+    detail: str
+
+
+def run_git(args: list[str], repo_dir: Path) -> subprocess.CompletedProcess[str]:
+    return subprocess.run(["git", *args], cwd=repo_dir, capture_output=True, text=True)
+
+
+def commit_and_push(
+    paths: list[str],
+    message: str,
+    *,
+    repo_dir: Path,
+    on_rebase: Callable[[], None] | None = None,
+) -> SyncResult:
+    """Commit `paths` and push. If the push is rejected by a concurrent
+    remote update (e.g. the hourly discovery Action), fetch, rebase onto it,
+    call `on_rebase` to regenerate any build artifacts among `paths` against
+    the merged inputs, and retry once."""
+    add = run_git(["add", "--", *paths], repo_dir)
+    if add.returncode != 0:
+        return SyncResult(False, False, f"git add failed: {add.stderr.strip()}")
+
+    if run_git(["diff", "--cached", "--quiet"], repo_dir).returncode == 0:
+        return SyncResult(False, False, "no changes to commit")
+
+    commit = run_git(["commit", "-m", message], repo_dir)
+    if commit.returncode != 0:
+        return SyncResult(False, False, f"git commit failed: {commit.stderr.strip()}")
+
+    push = run_git(["push"], repo_dir)
+    if push.returncode == 0:
+        return SyncResult(True, True, "pushed")
+
+    branch_result = run_git(["rev-parse", "--abbrev-ref", "HEAD"], repo_dir)
+    branch = branch_result.stdout.strip()
+    if branch_result.returncode != 0 or not branch:
+        return SyncResult(True, False, f"push failed: {push.stderr.strip()}")
+
+    if run_git(["fetch", "origin"], repo_dir).returncode != 0:
+        return SyncResult(True, False, f"push failed and fetch failed: {push.stderr.strip()}")
+
+    rebase = run_git(["rebase", f"origin/{branch}"], repo_dir)
+    if rebase.returncode != 0:
+        run_git(["rebase", "--abort"], repo_dir)
+        return SyncResult(
+            True,
+            False,
+            f"push rejected by a concurrent update and rebase failed -- "
+            f"resolve manually: {push.stderr.strip()}",
+        )
+
+    if on_rebase is not None:
+        on_rebase()
+        run_git(["add", "--", *paths], repo_dir)
+        if run_git(["diff", "--cached", "--quiet"], repo_dir).returncode != 0:
+            run_git(["commit", "--amend", "--no-edit"], repo_dir)
+
+    retry = run_git(["push"], repo_dir)
+    if retry.returncode == 0:
+        return SyncResult(True, True, "pushed after rebasing onto a concurrent update")
+    return SyncResult(True, False, f"push failed after rebase retry: {retry.stderr.strip()}")
+
+
+def regenerate_feeds() -> None:
+    rss_publish(DEFAULT_CONFIG_PATH, fetch_rss=False, now=datetime.now(timezone.utc))
 
 
 def agent_publish_settings(config: dict[str, Any]) -> dict[str, Any]:
@@ -226,7 +302,11 @@ def publish_item(
     """Publish one item to a topic feed. Enforces URL dedup across every
     configured item input and a per-topic daily publish quota (see
     config.json's agent_publish.default_daily_quota) -- call check_duplicate
-    or list_recent first so quota isn't spent on items already published."""
+    or list_recent first so quota isn't spent on items already published.
+    On success this also regenerates the RSS feeds and commits + pushes them
+    (plus the new item) to the repo's git remote, so GitHub Pages picks it
+    up on the next deploy."""
+    config = current_config()
     result = publish_item_core(
         topic,
         title,
@@ -236,10 +316,24 @@ def publish_item(
         source_url,
         image_url,
         content_html,
-        config=current_config(),
+        config=config,
         now=datetime.now(timezone.utc),
     )
-    return asdict(result)
+    response = asdict(result)
+
+    if result.status == "published":
+        regenerate_feeds()
+        settings = agent_publish_settings(config)
+        sync_paths = [settings["output_path"], config["output_dir"], config["processed_links"]]
+        sync = commit_and_push(
+            sync_paths,
+            f'agent: publish "{title.strip()}" to {result.topic}',
+            repo_dir=REPO_DIR,
+            on_rebase=regenerate_feeds,
+        )
+        response["git"] = asdict(sync)
+
+    return response
 
 
 if __name__ == "__main__":

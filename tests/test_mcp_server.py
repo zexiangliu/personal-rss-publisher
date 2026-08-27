@@ -1,4 +1,5 @@
 import json
+import subprocess
 import tempfile
 import unittest
 from datetime import datetime, timezone
@@ -6,6 +7,7 @@ from pathlib import Path
 
 from mcp_server import (
     check_duplicate_core,
+    commit_and_push,
     count_topic_publishes_today,
     list_recent_core,
     list_topics_core,
@@ -13,6 +15,26 @@ from mcp_server import (
 )
 
 NOW = datetime(2026, 8, 27, 12, 0, tzinfo=timezone.utc)
+
+
+def run(args: list[str], cwd: Path) -> None:
+    subprocess.run(["git", "-C", str(cwd), *args], check=True, capture_output=True, text=True)
+
+
+def init_bare_origin(path: Path) -> None:
+    subprocess.run(["git", "init", "--bare", "-b", "main", str(path)], check=True, capture_output=True)
+
+
+def clone_with_identity(origin: Path, dest: Path) -> None:
+    subprocess.run(["git", "clone", str(origin), str(dest)], check=True, capture_output=True)
+    run(["config", "user.email", "test@example.com"], dest)
+    run(["config", "user.name", "Test"], dest)
+
+
+def commit_file(repo: Path, name: str, content: str, message: str) -> None:
+    (repo / name).write_text(content, encoding="utf-8")
+    run(["add", name], repo)
+    run(["commit", "-m", message], repo)
 
 
 def base_config(tmp_path: Path) -> dict:
@@ -182,6 +204,85 @@ class HelperTests(unittest.TestCase):
         config = base_config(Path("/tmp"))
         topics = list_topics_core(config)
         self.assertEqual([topic["topic"] for topic in topics], ["news", "research"])
+
+
+class CommitAndPushTests(unittest.TestCase):
+    def test_pushes_cleanly_with_no_divergence(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            tmp_path = Path(tmp)
+            origin = tmp_path / "origin.git"
+            init_bare_origin(origin)
+
+            work = tmp_path / "work"
+            clone_with_identity(origin, work)
+            commit_file(work, "seed.txt", "seed\n", "seed")
+            run(["push", "-u", "origin", "main"], work)
+
+            (work / "items.agent.jsonl").write_text('{"id": "x"}\n', encoding="utf-8")
+            result = commit_and_push(["items.agent.jsonl"], "agent: publish test", repo_dir=work)
+
+            self.assertTrue(result.committed)
+            self.assertTrue(result.pushed)
+
+    def test_reports_no_changes_without_committing(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            tmp_path = Path(tmp)
+            origin = tmp_path / "origin.git"
+            init_bare_origin(origin)
+
+            work = tmp_path / "work"
+            clone_with_identity(origin, work)
+            commit_file(work, "seed.txt", "seed\n", "seed")
+            run(["push", "-u", "origin", "main"], work)
+
+            result = commit_and_push(["seed.txt"], "no-op", repo_dir=work)
+
+            self.assertFalse(result.committed)
+            self.assertFalse(result.pushed)
+
+    def test_rebases_past_a_concurrent_push_and_regenerates_before_retry(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            tmp_path = Path(tmp)
+            origin = tmp_path / "origin.git"
+            init_bare_origin(origin)
+
+            work = tmp_path / "work"
+            clone_with_identity(origin, work)
+            commit_file(work, "seed.txt", "seed\n", "seed")
+            run(["push", "-u", "origin", "main"], work)
+
+            # Simulate the hourly discovery Action pushing in the background
+            # while our agent is about to publish.
+            other = tmp_path / "other"
+            clone_with_identity(origin, other)
+            commit_file(other, "other.txt", "concurrent\n", "concurrent commit")
+            run(["push"], other)
+
+            (work / "items.agent.jsonl").write_text('{"id": "x"}\n', encoding="utf-8")
+            (work / "public.txt").write_text("stale\n", encoding="utf-8")
+            regenerated = {"calls": 0}
+
+            def on_rebase():
+                regenerated["calls"] += 1
+                (work / "public.txt").write_text("regenerated\n", encoding="utf-8")
+
+            result = commit_and_push(
+                ["items.agent.jsonl", "public.txt"],
+                "agent: publish test",
+                repo_dir=work,
+                on_rebase=on_rebase,
+            )
+
+            self.assertTrue(result.committed)
+            self.assertTrue(result.pushed)
+            self.assertEqual(regenerated["calls"], 1)
+
+            log = subprocess.run(
+                ["git", "-C", str(work), "log", "--oneline"], capture_output=True, text=True
+            ).stdout
+            self.assertIn("concurrent commit", log)
+            self.assertIn("agent: publish test", log)
+            self.assertEqual((work / "public.txt").read_text(encoding="utf-8"), "regenerated\n")
 
 
 if __name__ == "__main__":
