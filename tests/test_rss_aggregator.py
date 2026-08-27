@@ -100,6 +100,68 @@ class RssPublisherTests(unittest.TestCase):
         self.assertEqual([item.id for item in feeds["research"]], ["paper"])
         self.assertEqual(len(combined), 2)
 
+    def test_unconfigured_category_falls_back_to_default_feed_policy(self):
+        items = load_items_for_test(
+            [
+                {
+                    "id": "gadget-1",
+                    "title": "Gadget one",
+                    "url": "https://example.com/gadgets/one",
+                    "category": "gadgets",
+                    "published_at": "2026-08-27T00:00:00Z",
+                },
+            ]
+        )
+        config = {
+            "feeds": {"news": {"retention_hours": 24}},
+            "combined_feed": {"max_items": 300},
+            "default_feed": {"max_items": 1},
+        }
+
+        feeds, combined = route_items(dedupe_items(items), config, NOW)
+
+        self.assertIn("gadgets", feeds)
+        self.assertEqual([item.id for item in feeds["gadgets"]], ["gadget-1"])
+        self.assertEqual([item.id for item in feeds["news"]], [])
+        self.assertEqual(len(combined), 1)
+
+    def test_index_lists_dynamically_created_topics(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            tmp_path = Path(tmp)
+            write_json(
+                tmp_path / "config.json",
+                {
+                    "site": {"title": "Personal RSS", "site_url": "https://example.com/rss/"},
+                    "output_dir": str(tmp_path / "public"),
+                    "item_inputs": [str(tmp_path / "items.jsonl")],
+                    "rss_sources": str(tmp_path / "rss_sources.json"),
+                    "processed_links": str(tmp_path / "processed_links.txt"),
+                    "feeds": {"news": {"title": "News", "output": "news.xml"}},
+                    "default_feed": {"max_items": 50},
+                    "combined_feed": {"title": "All", "output": "all.xml", "max_items": 300},
+                },
+            )
+            write_json(tmp_path / "rss_sources.json", {"sources": []})
+            (tmp_path / "items.jsonl").write_text(
+                json.dumps(
+                    {
+                        "id": "gadget-1",
+                        "title": "Gadget one",
+                        "url": "https://example.com/gadgets/one",
+                        "category": "gadgets",
+                        "published_at": "2026-08-26T00:00:00Z",
+                    }
+                )
+                + "\n",
+                encoding="utf-8",
+            )
+
+            publish(tmp_path / "config.json", fetch_rss=False, now=NOW)
+
+            self.assertTrue((tmp_path / "public" / "gadgets.xml").exists())
+            index_html = (tmp_path / "public" / "index.html").read_text(encoding="utf-8")
+            self.assertIn("gadgets.xml", index_html)
+
     def test_publish_writes_valid_unicode_rss_and_combined_feed(self):
         with tempfile.TemporaryDirectory() as tmp:
             tmp_path = Path(tmp)

@@ -97,11 +97,12 @@ def load_config(path: Path = DEFAULT_CONFIG_PATH) -> dict[str, Any]:
         raise ValueError("config.json must define a feeds object")
 
     config.setdefault("output_dir", "public")
-    config.setdefault("item_inputs", ["items.jsonl", "items.json"])
+    config.setdefault("item_inputs", ["items.jsonl", "items.agent.jsonl", "items.json"])
     config.setdefault("rss_sources", "rss_sources.json")
     config.setdefault("processed_links", str(DEFAULT_PROCESSED_LINKS_PATH))
     config.setdefault("processed_links_retention_days", 365)
     config.setdefault("combined_feed", {"title": "All", "output": "all.xml"})
+    config.setdefault("default_feed", {"max_items": 150})
     config.setdefault("site", {})
     config["site"].setdefault("title", "Personal RSS")
     config["site"].setdefault(
@@ -288,8 +289,13 @@ def sort_items(items: list[NormalizedItem]) -> list[NormalizedItem]:
 def route_items(
     items: list[NormalizedItem], config: dict[str, Any], now: datetime
 ) -> tuple[dict[str, list[NormalizedItem]], list[NormalizedItem]]:
+    extra_categories = sorted({item.category for item in items} - set(config["feeds"]))
+    feed_names = list(config["feeds"]) + extra_categories
+    default_feed = config.get("default_feed", {})
+
     feeds: dict[str, list[NormalizedItem]] = {}
-    for feed_name, feed_config in config["feeds"].items():
+    for feed_name in feed_names:
+        feed_config = config["feeds"].get(feed_name, default_feed)
         category_items = [item for item in items if item.category == feed_name]
         feeds[feed_name] = apply_retention(category_items, feed_config, now)
 
@@ -330,15 +336,18 @@ def write_outputs(
     output_dir = Path(config["output_dir"])
     output_dir.mkdir(parents=True, exist_ok=True)
 
+    default_feed = config.get("default_feed", {})
+    feed_configs: dict[str, dict[str, Any]] = {}
     for feed_name, feed_items in feeds.items():
-        feed_config = config["feeds"][feed_name]
+        feed_config = config["feeds"].get(feed_name, default_feed)
+        feed_configs[feed_name] = feed_config
         output_name = feed_config.get("output", f"{feed_name}.xml")
         write_rss_file(output_dir / output_name, feed_config, feed_items, config, now)
 
     combined_config = config["combined_feed"]
     combined_output = combined_config.get("output", "all.xml")
     write_rss_file(output_dir / combined_output, combined_config, combined, config, now)
-    write_index(output_dir / "index.html", config)
+    write_index(output_dir / "index.html", feed_configs, combined_config, config)
 
 
 def write_rss_file(
@@ -411,13 +420,17 @@ def ensure_trailing_slash(url: str) -> str:
     return url if not url or url.endswith("/") else f"{url}/"
 
 
-def write_index(path: Path, config: dict[str, Any]) -> None:
+def write_index(
+    path: Path,
+    feed_configs: dict[str, dict[str, Any]],
+    combined_config: dict[str, Any],
+    config: dict[str, Any],
+) -> None:
     title = config["site"]["title"]
     rows: list[tuple[str, str]] = []
-    for feed_name, feed_config in config["feeds"].items():
+    for feed_name, feed_config in feed_configs.items():
         rows.append((feed_config.get("title", feed_name.title()), feed_config.get("output", f"{feed_name}.xml")))
-    combined = config["combined_feed"]
-    rows.append((combined.get("title", "All"), combined.get("output", "all.xml")))
+    rows.append((combined_config.get("title", "All"), combined_config.get("output", "all.xml")))
 
     feed_rows = "\n".join(
         f'      <li><span>{escape_html(label)}</span><a href="{escape_html(href)}">RSS</a></li>'

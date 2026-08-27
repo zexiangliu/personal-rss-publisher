@@ -8,11 +8,20 @@
   "item_inputs": [
     "items.jsonl",
     "items.discovered.jsonl",
+    "items.agent.jsonl",
     "items.json"
   ],
   "rss_sources": "rss_sources.json",
   "processed_links": "processed_links.txt",
   "processed_links_retention_days": 365,
+  "default_feed": {
+    "max_items": 150
+  },
+  "agent_publish": {
+    "output_path": "items.agent.jsonl",
+    "default_daily_quota": 3,
+    "daily_quota_by_topic": {}
+  },
   "feeds": {
     "news": {
       "title": "News",

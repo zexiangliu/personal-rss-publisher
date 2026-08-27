@@ -7,6 +7,7 @@ The Phase 1 pipeline is intentionally simple:
 ```text
 items.json / items.jsonl
 items.discovered.jsonl
+items.agent.jsonl
         ↓
 rss_aggregator.py
         ↓
@@ -48,14 +49,17 @@ It changes the main shape:
 
 ```text
 .
+├── .codex/config.toml
+├── .cursor/mcp.json
 ├── .github/workflows/rss_aggregator.yml
+├── .mcp.json
 ├── config.json
-├── curate_research.py
 ├── discover_items.py
 ├── discovery_config.json
-├── feedback.py
+├── items.agent.jsonl
 ├── items.discovered.jsonl
 ├── items.jsonl
+├── mcp_server.py
 ├── processed_links.txt
 ├── public/
 │   ├── index.html
@@ -64,26 +68,43 @@ It changes the main shape:
 │   ├── investing.xml
 │   └── all.xml
 ├── requirements.txt
-├── research_topics.json
 ├── rss_aggregator.py
 ├── rss_sources.json
+├── run_mcp_server.sh
+├── setup.sh
 └── tests/
-    ├── test_curate_research.py
     ├── test_discover_items.py
-    ├── test_feedback.py
+    ├── test_mcp_server.py
     └── test_rss_aggregator.py
 ```
 
 ## Install And Run Locally
 
 ```bash
-python -m venv .venv
+./setup.sh   # creates .venv and installs requirements.txt (incl. mcp)
+.venv/bin/python3 discover_items.py
+.venv/bin/python3 rss_aggregator.py
+.venv/bin/python3 -m unittest discover -s tests -v
+```
+
+`setup.sh` exists because most systems ship an "externally managed" system
+Python that refuses `pip install mcp` directly (PEP 668) — a local `.venv` is
+the reliable way to get `mcp_server.py`'s dependency installed.
+
+After the venv is ready, `setup.sh` detects which of Claude Code / Cursor /
+Codex CLI are installed and, for each one found, asks where to register
+`personal-rss`: this project only, all projects (system-wide), or skip. It
+shows the exact config file each choice would write before you pick, and
+writing is idempotent — re-running `setup.sh` won't create duplicate entries.
+See [Wiring it into an agent](#wiring-it-into-an-agent) for what each scope
+means and how to change your answer later.
+
+Equivalently, without the script:
+
+```bash
+python3 -m venv .venv
 source .venv/bin/activate
 pip install -r requirements.txt
-python discover_items.py
-python curate_research.py
-python rss_aggregator.py
-python -m unittest discover -s tests -v
 ```
 
 The generated feeds are written to `public/`.
@@ -144,6 +165,11 @@ To add a new channel, add one feed entry and start using that category in `items
 ```
 
 Then add items with `"category":"technology"`. No Python code change is required.
+
+Categories that appear in item inputs but aren't listed under `feeds` still
+get a feed — they use `config.json`'s `default_feed` retention policy. This
+is how `mcp_server.py` supports publishing to any topic name; see
+[Agent Publishing (MCP)](#agent-publishing-mcp).
 
 ## Retention
 
@@ -234,65 +260,73 @@ Discovery source types currently supported:
 - `rss`: ordinary RSS/Atom feeds
 - `hk01_zone`: HK01 zone pages such as `https://www.hk01.com/zone/4/國際`
 
-## Research Curation
+## Agent Publishing (MCP)
 
-`curate_research.py` reads `research_topics.json`, fetches paper/blog candidates,
-scores them, writes a local candidate cache to `research_candidates.jsonl`, and
-appends publishable items to `items.discovered.jsonl`.
+Anything beyond the automated `news` discovery above — research papers, blog
+posts, or any other topic — is curated by an interactive coding agent instead
+of a keyword-scoring script. `mcp_server.py` is a small MCP server that gives
+an agent (e.g. Claude Code, via the `.mcp.json` in this repo) a narrow set of
+tools to push judgment calls into the publishing pipeline without needing an
+API key of its own:
 
-The first topics are:
-
-- Reinforcement Learning
-- Safe Reinforcement Learning
-
-Run the research curator locally:
-
-```bash
-python curate_research.py
-python rss_aggregator.py
-```
-
-Each topic can tune:
-
-| Field | Notes |
+| Tool | Purpose |
 |---|---|
-| `arxiv_query` | arXiv API query for candidate discovery |
-| `include_keywords` | at least one must match before scoring |
-| `rank_keywords` | weighted relevance keywords |
-| `publish_threshold` | minimum 0-10 score required for RSS publication |
-| `max_items_per_topic` | caps feed volume per run |
-| `rss_sources` | optional research blog RSS feeds for the same topic |
+| `list_topics()` | Lists configured feeds; any other topic name also works |
+| `check_duplicate(url)` | Checks whether a URL is already published anywhere |
+| `list_recent(topic, limit)` | Lists recently published items for context |
+| `publish_item(topic, title, url, ...)` | Publishes one item, enforcing dedup and quota |
 
-To add a topic, copy one object in `research_topics.json`, change `id`, `name`,
-`arxiv_query`, and keyword lists. No Python code change is required.
+The agent is responsible for finding and judging candidates (it can use its
+own search/fetch tools); this server is only responsible for what the repo
+must own reliably:
 
-### Optional Agent Review
+- **Dedup** — `publish_item` rejects a URL that's already in any configured
+  `item_inputs` file, reusing the same `normalize_url`/`load_known_urls`
+  logic as the rest of the pipeline.
+- **Lifespan** — published items land in `items.agent.jsonl`, which
+  `rss_aggregator.py` reads like any other item input, so per-feed
+  `retention_hours`/`retention_days`/`max_items` still apply.
+- **Quota** — each topic has a daily publish quota (`config.json`'s
+  `agent_publish.default_daily_quota`, overridable per topic in
+  `daily_quota_by_topic`) so an agent that found 100 good candidates can
+  still only push a few per day; the rest wait for tomorrow's quota or a
+  higher configured limit.
 
-The default scorer is deterministic and transparent. You can enable stricter LLM
-review by setting `defaults.agent_review.enabled` to `true` in
-`research_topics.json`, then exporting an API key:
+Topics are free-form: publishing to a topic that isn't in `config.json`'s
+`feeds` still works — it gets `default_feed`'s retention policy and a
+`<topic>.xml` feed is generated automatically.
 
-```bash
-export OPENAI_API_KEY="your_api_key_here"
-python curate_research.py --use-agent
+Run the server directly for debugging with `./run_mcp_server.sh` (after
+`./setup.sh`), which launches `mcp_server.py` with the local venv's
+interpreter no matter what directory it's invoked from.
+
+### Wiring it into an agent
+
+`./setup.sh` asks, per agent, whether to register `personal-rss`:
+
+| Scope | What it does | When to pick it |
+|---|---|---|
+| This project only | Writes into a config file inside this repo (`.mcp.json` for Claude Code, `.cursor/mcp.json` for Cursor, `.codex/config.toml` for Codex CLI) | You only ever publish to this feed while working inside this repo, or you want the registration to travel with the repo (e.g. for a collaborator who clones it and runs `setup.sh` themselves) |
+| All projects (system-wide) | Writes into your user-level config (`~/.claude.json` user scope, `~/.cursor/mcp.json`, `~/.codex/config.toml`) with an **absolute** path to `run_mcp_server.sh` | You want to call `publish_item` etc. from any folder — it always operates on this one repo's `config.json`/`items.agent.jsonl`, since `run_mcp_server.sh` resolves paths relative to itself, not your current directory |
+
+Codex CLI has one extra wrinkle: it only loads a project-local
+`.codex/config.toml` for **trusted** projects, so choosing "this project only"
+for Codex also appends a trust entry to your `~/.codex/config.toml`:
+
+```toml
+[projects."/absolute/path/to/this/repo"]
+trust_level = "trusted"
 ```
 
-If the key is missing or the API call fails, the script prints a warning and
-falls back to the rule-based score so scheduled publishing keeps working.
+Re-run `./setup.sh` any time to add another agent, switch an existing one
+between project and system-wide scope, or repoint things after moving the
+repo — all the writes are idempotent. To remove a registration, use each
+agent's own tooling, e.g. `claude mcp remove personal-rss -s <project|user>`
+for Claude Code.
 
-### Feedback
-
-Use `feedback.py` to inspect recent candidates/published items and record
-lightweight preferences:
-
-```bash
-python feedback.py list --channel research --limit 20
-python feedback.py rate arxiv:2608.12345 --rating 1 --tag useful --note "Good Safe RL fit"
-python feedback.py rate https://arxiv.org/abs/2608.12345 --rating -1 --tag too-broad
-```
-
-Ratings are stored in `feedback.jsonl`. Future research runs use topic, source,
-and keyword overlap from that feedback to nudge scores up or down.
+After a publishing session, regenerate feeds locally with
+`.venv/bin/python3 rss_aggregator.py` and commit `items.agent.jsonl` and
+`public/` the same way you would commit a manual `items.jsonl` edit.
 
 ## GitHub Pages
 

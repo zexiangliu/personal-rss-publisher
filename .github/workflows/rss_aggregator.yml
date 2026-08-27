@@ -41,11 +41,6 @@ jobs:
       - name: Discover items
         run: python discover_items.py
 
-      - name: Curate research
-        env:
-          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
-        run: python curate_research.py
-
       - name: Generate RSS feeds
         run: python rss_aggregator.py
 

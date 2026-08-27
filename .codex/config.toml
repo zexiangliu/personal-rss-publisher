@@ -1,0 +1,2 @@
+[mcp_servers.personal-rss]
+command = "./run_mcp_server.sh"
