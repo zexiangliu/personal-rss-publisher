@@ -4,8 +4,18 @@
     <title>All</title>
     <link>https://zexiangliu.github.io/personal-rss-publisher/</link>
     <description>All personal RSS channels combined.</description>
-    <lastBuildDate>Thu, 27 Aug 2026 23:05:02 GMT</lastBuildDate>
+    <lastBuildDate>Thu, 27 Aug 2026 23:05:18 GMT</lastBuildDate>
     <generator>personal-rss-publisher</generator>
+    <item>
+      <title>π0.7：可播控的机器人基础模型与组合泛化</title>
+      <link>https://www.pi.website/blog/pi07</link>
+      <guid isPermaLink="false">url:07774e77e54528b94a42fd48</guid>
+      <pubDate>Thu, 27 Aug 2026 23:05:18 GMT</pubDate>
+      <category>research</category>
+      <source url="https://www.pi.website/blog">Physical Intelligence</source>
+      <description>π0.7 用语言+速度/质量 metadata+视觉 subgoal 做可播控的 generalist VLA：一个模型达到专用 RL specialist 的折衣/厨电/箱体水平，并展现跨本体组合泛化。当前机器人基础模型里最值得读的实验室文之一。</description>
+      <content:encoded><![CDATA[<p><strong>Why this matters:</strong> Physical Intelligence（Sergey Levine / Chelsea Finn 等）是目前机器人基础模型里最值得跟的实验室之一。π0.7 的核心不是更大的 backbone，而是用多模态 prompt 让一个 generalist 达到 specialist RL 的效率。</p><p>π0.7 在语言指令之外，还用<strong>集成 metadata</strong>（速度/质量）、<strong>控制模态标签</strong>（关节 vs 末端）和<strong>视觉 subgoal</strong>（可由轻量 world model 生成）来消除数据多模态。这让它能混入演示、失败自主运行、人类视频和网页数据，而不把策略平均掉。结果上：厨电、折箱、折衣服达到专用 Recap RL specialist 的成功率和吞吐量；用 language coaching 教它用空气炸锅；在从未采过折衣数据的双臂 UR5e 上折 T 恤，成功率贴近首次接触该本体的人类遥操员。权重未开源（openpi 仍只有 π0 / FAST / π0.5）。</p>]]></content:encoded>
+    </item>
     <item>
       <title>从走路到翻箱：把 locomotion RL 堆栈搬到操作</title>
       <link>https://menlo.ai/research/from-walking-to-flipping</link>
