@@ -8,11 +8,12 @@ from pathlib import Path
 from mcp_server import (
     check_duplicate_core,
     commit_and_push,
-    count_topic_publishes_today,
     list_recent_core,
     list_topics_core,
-    publish_item_core,
+    propose_item_core,
 )
+from rss_aggregator import publish as rss_aggregator_publish
+from rss_aggregator import read_jsonl_raw
 
 NOW = datetime(2026, 8, 27, 12, 0, tzinfo=timezone.utc)
 
@@ -43,6 +44,7 @@ def base_config(tmp_path: Path) -> dict:
             str(tmp_path / "items.jsonl"),
             str(tmp_path / "items.agent.jsonl"),
         ],
+        "output_dir": str(tmp_path / "public"),
         "processed_links": str(tmp_path / "processed_links.txt"),
         "feeds": {
             "news": {"title": "News", "retention_hours": 24},
@@ -51,17 +53,20 @@ def base_config(tmp_path: Path) -> dict:
         "default_feed": {"max_items": 150},
         "agent_publish": {
             "output_path": str(tmp_path / "items.agent.jsonl"),
+            "candidates_path": str(tmp_path / "items.candidates.jsonl"),
             "default_daily_quota": 3,
             "daily_quota_by_topic": {},
+            "candidates_max_age_days": 30,
         },
     }
 
 
-class PublishItemCoreTests(unittest.TestCase):
-    def test_publish_succeeds_for_a_free_form_topic(self):
+class ProposeItemCoreTests(unittest.TestCase):
+    def test_proposal_succeeds_for_a_free_form_topic(self):
         with tempfile.TemporaryDirectory() as tmp:
-            config = base_config(Path(tmp))
-            result = publish_item_core(
+            tmp_path = Path(tmp)
+            config = base_config(tmp_path)
+            result = propose_item_core(
                 "gadgets",
                 "A new e-reader",
                 "https://example.com/gadgets/reader",
@@ -70,11 +75,26 @@ class PublishItemCoreTests(unittest.TestCase):
                 now=NOW,
             )
 
-        self.assertEqual(result.status, "published")
-        self.assertEqual(result.topic, "gadgets")
-        self.assertEqual(result.remaining_quota, 2)
+            self.assertEqual(result.status, "proposed")
+            self.assertEqual(result.topic, "gadgets")
+            candidates = (tmp_path / "items.candidates.jsonl").read_text(encoding="utf-8")
+            self.assertIn("gadgets/reader", candidates)
+            self.assertFalse((tmp_path / "items.agent.jsonl").exists())
 
-    def test_duplicate_url_is_rejected_without_writing(self):
+    def test_proposing_the_same_url_twice_is_rejected_the_second_time(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            config = base_config(Path(tmp))
+            first = propose_item_core(
+                "research", "Paper", "https://example.com/paper", config=config, now=NOW
+            )
+            second = propose_item_core(
+                "research", "Paper again", "https://example.com/paper", config=config, now=NOW
+            )
+
+            self.assertEqual(first.status, "proposed")
+            self.assertEqual(second.status, "duplicate")
+
+    def test_duplicate_url_already_published_is_rejected_without_writing(self):
         with tempfile.TemporaryDirectory() as tmp:
             tmp_path = Path(tmp)
             config = base_config(tmp_path)
@@ -92,7 +112,7 @@ class PublishItemCoreTests(unittest.TestCase):
                 encoding="utf-8",
             )
 
-            result = publish_item_core(
+            result = propose_item_core(
                 "research",
                 "Existing item again",
                 "https://example.com/research/paper",
@@ -101,7 +121,7 @@ class PublishItemCoreTests(unittest.TestCase):
             )
 
             self.assertEqual(result.status, "duplicate")
-            self.assertFalse((tmp_path / "items.agent.jsonl").exists())
+            self.assertFalse((tmp_path / "items.candidates.jsonl").exists())
 
     def test_duplicate_url_recorded_only_in_the_processed_links_ledger_is_rejected(self):
         with tempfile.TemporaryDirectory() as tmp:
@@ -114,7 +134,7 @@ class PublishItemCoreTests(unittest.TestCase):
                 encoding="utf-8",
             )
 
-            result = publish_item_core(
+            result = propose_item_core(
                 "research",
                 "Old paper again",
                 "https://example.com/research/old-paper",
@@ -123,14 +143,14 @@ class PublishItemCoreTests(unittest.TestCase):
             )
 
             self.assertEqual(result.status, "duplicate")
-            self.assertFalse((tmp_path / "items.agent.jsonl").exists())
+            self.assertFalse((tmp_path / "items.candidates.jsonl").exists())
 
-    def test_score_is_recorded_on_the_published_item(self):
+    def test_score_is_recorded_on_the_proposed_item(self):
         with tempfile.TemporaryDirectory() as tmp:
             tmp_path = Path(tmp)
             config = base_config(tmp_path)
 
-            publish_item_core(
+            propose_item_core(
                 "research",
                 "Important paper",
                 "https://example.com/research/important",
@@ -139,61 +159,40 @@ class PublishItemCoreTests(unittest.TestCase):
                 now=NOW,
             )
 
-            written = json.loads((tmp_path / "items.agent.jsonl").read_text(encoding="utf-8"))
+            written = json.loads((tmp_path / "items.candidates.jsonl").read_text(encoding="utf-8"))
             self.assertEqual(written["score"], 8.5)
 
-    def test_daily_quota_blocks_the_next_publish(self):
+    def test_proposing_past_todays_quota_still_succeeds(self):
+        # Quota is only enforced at promotion time, not when proposing --
+        # score is what decides who wins a limited quota, and that decision
+        # needs to see every candidate first.
         with tempfile.TemporaryDirectory() as tmp:
             tmp_path = Path(tmp)
             config = base_config(tmp_path)
-            config["agent_publish"]["default_daily_quota"] = 2
+            config["agent_publish"]["default_daily_quota"] = 1
 
-            first = publish_item_core(
+            first = propose_item_core(
                 "research", "Paper one", "https://example.com/paper-1", config=config, now=NOW
             )
-            second = publish_item_core(
+            second = propose_item_core(
                 "research", "Paper two", "https://example.com/paper-2", config=config, now=NOW
             )
-            third = publish_item_core(
-                "research", "Paper three", "https://example.com/paper-3", config=config, now=NOW
-            )
 
-            self.assertEqual(first.status, "published")
-            self.assertEqual(second.status, "published")
-            self.assertEqual(third.status, "quota_exceeded")
-            self.assertNotIn(
-                "paper-3", (tmp_path / "items.agent.jsonl").read_text(encoding="utf-8")
-            )
+            self.assertEqual(first.status, "proposed")
+            self.assertEqual(second.status, "proposed")
+            candidates = (tmp_path / "items.candidates.jsonl").read_text(encoding="utf-8")
+            self.assertIn("paper-1", candidates)
+            self.assertIn("paper-2", candidates)
 
     def test_missing_required_fields_is_invalid(self):
         with tempfile.TemporaryDirectory() as tmp:
             config = base_config(Path(tmp))
-            result = publish_item_core("research", "", "", config=config, now=NOW)
+            result = propose_item_core("research", "", "", config=config, now=NOW)
 
         self.assertEqual(result.status, "invalid")
 
 
 class HelperTests(unittest.TestCase):
-    def test_count_topic_publishes_today_only_counts_matching_topic_and_day(self):
-        with tempfile.TemporaryDirectory() as tmp:
-            agent_path = Path(tmp) / "items.agent.jsonl"
-            agent_path.write_text(
-                "\n".join(
-                    json.dumps(item)
-                    for item in [
-                        {"category": "research", "published_at": "2026-08-27T01:00:00+00:00"},
-                        {"category": "research", "published_at": "2026-08-26T23:00:00+00:00"},
-                        {"category": "news", "published_at": "2026-08-27T02:00:00+00:00"},
-                    ]
-                )
-                + "\n",
-                encoding="utf-8",
-            )
-
-            self.assertEqual(count_topic_publishes_today("research", agent_path, NOW), 1)
-            self.assertEqual(count_topic_publishes_today("news", agent_path, NOW), 1)
-            self.assertEqual(count_topic_publishes_today("missing", agent_path, NOW), 0)
-
     def test_check_duplicate_reports_the_source_file(self):
         with tempfile.TemporaryDirectory() as tmp:
             tmp_path = Path(tmp)
@@ -233,6 +232,19 @@ class HelperTests(unittest.TestCase):
         self.assertTrue(found["duplicate"])
         self.assertTrue(found["found_in"].endswith("processed_links.txt"))
 
+    def test_check_duplicate_finds_urls_already_pending(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            tmp_path = Path(tmp)
+            config = base_config(tmp_path)
+            propose_item_core(
+                "research", "Pending", "https://example.com/pending", config=config, now=NOW
+            )
+
+            found = check_duplicate_core("https://example.com/pending", config)
+
+        self.assertTrue(found["duplicate"])
+        self.assertTrue(found["found_in"].endswith("items.candidates.jsonl"))
+
     def test_list_recent_filters_by_topic_and_sorts_newest_first(self):
         with tempfile.TemporaryDirectory() as tmp:
             tmp_path = Path(tmp)
@@ -253,6 +265,25 @@ class HelperTests(unittest.TestCase):
             recent = list_recent_core("research", 10, config)
 
         self.assertEqual([item["id"] for item in recent], ["b", "a"])
+
+    def test_list_recent_status_pending_reads_candidates_and_all_reads_both(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            tmp_path = Path(tmp)
+            config = base_config(tmp_path)
+            (tmp_path / "items.jsonl").write_text(
+                json.dumps({"id": "published", "title": "Published", "category": "research", "published_at": "2026-08-26T00:00:00Z"})
+                + "\n",
+                encoding="utf-8",
+            )
+            propose_item_core(
+                "research", "Pending", "https://example.com/pending", config=config, now=NOW
+            )
+
+            pending_only = list_recent_core("research", 10, config, status="pending")
+            all_items = list_recent_core("research", 10, config, status="all")
+
+        self.assertEqual([item["title"] for item in pending_only], ["Pending"])
+        self.assertEqual({item["title"] for item in all_items}, {"Published", "Pending"})
 
     def test_list_topics_includes_configured_feeds(self):
         config = base_config(Path("/tmp"))
@@ -337,6 +368,84 @@ class CommitAndPushTests(unittest.TestCase):
             self.assertIn("concurrent commit", log)
             self.assertIn("agent: publish test", log)
             self.assertEqual((work / "public.txt").read_text(encoding="utf-8"), "regenerated\n")
+
+
+class PublishPendingIntegrationTests(unittest.TestCase):
+    """Exercises the same composition publish_pending() does (promote +
+    regenerate + commit + push) against an isolated repo, since the real
+    tool function is hardcoded to this repo's own config.json/REPO_DIR."""
+
+    def test_a_pending_candidate_is_promoted_committed_and_pushed(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            tmp_path = Path(tmp)
+            origin = tmp_path / "origin.git"
+            init_bare_origin(origin)
+
+            work = tmp_path / "work"
+            clone_with_identity(origin, work)
+            commit_file(work, "seed.txt", "seed\n", "seed")
+            run(["push", "-u", "origin", "main"], work)
+
+            agent_path = work / "items.agent.jsonl"
+            candidates_path = work / "items.candidates.jsonl"
+            processed_links_path = work / "processed_links.txt"
+            output_dir = work / "public"
+            config_path = work / "config.json"
+            config_path.write_text(
+                json.dumps(
+                    {
+                        "site": {"title": "Personal RSS", "site_url": "https://example.com/rss/"},
+                        "output_dir": str(output_dir),
+                        "item_inputs": [str(agent_path)],
+                        "rss_sources": str(work / "rss_sources.json"),
+                        "processed_links": str(processed_links_path),
+                        "feeds": {"research": {"title": "Research", "output": "research.xml", "max_items": 100}},
+                        "combined_feed": {"title": "All", "output": "all.xml", "max_items": 300},
+                        "agent_publish": {
+                            "output_path": str(agent_path),
+                            "candidates_path": str(candidates_path),
+                            "default_daily_quota": 6,
+                            "daily_quota_by_topic": {},
+                            "candidates_max_age_days": 30,
+                        },
+                    }
+                ),
+                encoding="utf-8",
+            )
+            (work / "rss_sources.json").write_text(json.dumps({"sources": []}), encoding="utf-8")
+            candidates_path.write_text(
+                json.dumps(
+                    {
+                        "id": "candidate-1",
+                        "title": "Queued paper",
+                        "url": "https://example.com/research/queued",
+                        "category": "research",
+                        "score": 5.0,
+                        "published_at": "2026-08-26T00:00:00Z",
+                    }
+                )
+                + "\n",
+                encoding="utf-8",
+            )
+
+            rss_aggregator_publish(config_path, fetch_rss=False, now=NOW)
+            sync = commit_and_push(
+                [str(agent_path), str(candidates_path), str(output_dir), str(processed_links_path)],
+                "agent: publish pending candidates",
+                repo_dir=work,
+            )
+
+            self.assertTrue(sync.pushed)
+            self.assertEqual(read_jsonl_raw(candidates_path), [])
+            promoted = read_jsonl_raw(agent_path)
+            self.assertEqual([item["id"] for item in promoted], ["candidate-1"])
+
+            origin_log = subprocess.run(
+                ["git", "--git-dir", str(origin), "log", "--oneline"],
+                capture_output=True,
+                text=True,
+            ).stdout
+            self.assertIn("agent: publish pending candidates", origin_log)
 
 
 if __name__ == "__main__":

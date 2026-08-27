@@ -57,6 +57,7 @@ It changes the main shape:
 ├── discover_items.py
 ├── discovery_config.json
 ├── items.agent.jsonl
+├── items.candidates.jsonl
 ├── items.discovered.jsonl
 ├── items.jsonl
 ├── mcp_server.py
@@ -181,12 +182,12 @@ Each channel can use:
 
 `all.xml` is built from the items that remain in the configured channel feeds, then applies its own optional `max_items` or `retention_days`.
 
-When `max_items` has to drop items, it doesn't just drop the oldest ones: it
-ranks by each item's optional `score` field first (see
-[Agent Publishing (MCP)](#agent-publishing-mcp)) and recency second, so a
-highly-scored older item survives over a newer item nobody rated. Items
-without a `score` default to `0.0`, so a feed nobody ever scores behaves
-exactly as before — pure newest-first truncation.
+Retention is always pure recency — the oldest items go first, regardless of
+any `score` an agent assigned. Score's job is over by the time an item
+reaches this stage: it only decides which *pending* candidates get promoted
+into the feed in the first place (see [Agent Publishing
+(MCP)](#agent-publishing-mcp)). This is deliberate — an old high-scored item
+should never be able to permanently block a newer one from ever appearing.
 
 ## Deduplication And `processed_links.txt`
 
@@ -200,14 +201,16 @@ The publisher normalizes URLs and keeps only one item per URL in the generated o
 
 It's the **permanent** dedup memory, separate from the `item_inputs` files
 that hold current feed content: `discover_items.py` and `mcp_server.py`'s
-`check_duplicate`/`publish_item` all consult it (via `processed_link_urls()`
+`check_duplicate`/`propose_item` all consult it (via `processed_link_urls()`
 in `rss_aggregator.py`) in addition to `items.jsonl`/`items.discovered.jsonl`/
 `items.agent.jsonl`, so a URL is remembered as "already published" even after
 it ages out of every feed's retention window or is pruned from those files.
-This is what makes it safe to trim the ever-growing `items.*.jsonl` files
-later without the same article getting rediscovered or republished. It's
-isolated behind a small `ProcessedLinkStore` class so it can later be
-replaced by SQLite without changing RSS generation.
+This is what makes it safe to physically trim `items.discovered.jsonl` and
+`items.agent.jsonl` (see `item_log_retention` in
+[Agent Publishing (MCP)](#agent-publishing-mcp)) without the same article
+getting rediscovered or re-proposed later. It's isolated behind a small
+`ProcessedLinkStore` class so it can later be replaced by SQLite without
+changing RSS generation.
 
 ## Optional External RSS Sources
 
@@ -283,59 +286,66 @@ posts, or any other topic — is curated by an interactive coding agent instead
 of a keyword-scoring script. `mcp_server.py` is a small MCP server that gives
 an agent (e.g. Claude Code, via the `.mcp.json` in this repo) a narrow set of
 tools to push judgment calls into the publishing pipeline without needing an
-API key of its own:
+API key of its own.
+
+Publishing is two phases, so score can actually decide something instead of
+just influencing one item at a time:
 
 | Tool | Purpose |
 |---|---|
 | `list_topics()` | Lists configured feeds; any other topic name also works |
-| `check_duplicate(url)` | Checks whether a URL is already published anywhere |
-| `list_recent(topic, limit)` | Lists recently published items for context |
-| `publish_item(topic, title, url, ..., score=0.0)` | Publishes one item, enforcing dedup and quota |
+| `check_duplicate(url)` | Checks whether a URL is already published or already pending |
+| `list_recent(topic, limit, status)` | Lists recent items — `status` is `published` (default), `pending`, or `all` |
+| `propose_item(topic, title, url, ..., score=0.0)` | Queues a candidate. No quota check, no git — just a local append |
+| `publish_pending()` | Runs a publish cycle now: promotes, regenerates feeds, commits, pushes |
 
-The agent is responsible for finding and judging candidates (it can use its
-own search/fetch tools); this server is only responsible for what the repo
-must own reliably:
+**Propose.** `propose_item` appends a scored candidate to
+`items.candidates.jsonl` and returns immediately — it doesn't publish
+anything and never touches git. That makes it cheap and safe to call many
+times in a row, or from several agent sessions at once (a single small JSONL
+append is atomic under concurrent writers on Linux). It does still reject a
+URL that's a duplicate of anything already published (`item_inputs` files or
+`processed_links.txt`'s permanent ledger — see
+[Deduplication](#deduplication-and-processed_linkstxt)) or already pending.
 
-- **Dedup** — `publish_item` rejects a URL that's already in any configured
-  `item_inputs` file *or* in `processed_links.txt`'s permanent ledger (see
-  [Deduplication](#deduplication-and-processed_linkstxt)), reusing the same
-  `normalize_url`/`load_known_urls`/`processed_link_urls` logic as the rest
-  of the pipeline.
-- **Lifespan** — published items land in `items.agent.jsonl`, which
-  `rss_aggregator.py` reads like any other item input, so per-feed
-  `retention_hours`/`retention_days`/`max_items` still apply. `items.agent.jsonl`
-  itself is never pruned automatically — the agent can write to it freely;
-  it's each feed's `max_items` cap that decides what's actually visible in
-  the XML at any given time (see `score` below for how that cap chooses).
-- **Quota** — each topic has a daily publish quota (`config.json`'s
-  `agent_publish.default_daily_quota`, default `6`, overridable per topic in
-  `daily_quota_by_topic`) so an agent that found 100 good candidates can
-  still only push a handful per day; the rest wait for tomorrow's quota or a
-  higher configured limit. This paces what lands in your reader — it's
-  independent of dedup and of the `max_items` cap below.
-- **Score** — `publish_item`'s optional `score` argument is any
-  importance/interest rating you want the agent to use (pick a scale, e.g.
-  0-10, and stay consistent within a topic). When a feed's `max_items` cap
-  has to drop items, higher-scored ones survive over lower-scored ones
-  regardless of recency — see [Retention](#retention). Leave it at the
-  default `0.0` for plain recency-based behavior.
+**Promote.** Whenever `rss_aggregator.py` runs — the existing hourly
+discovery Action, or `publish_pending` on demand — `promote_candidates()`
+looks at each topic's pending candidates, ranks them by `score` (any scale
+you like, e.g. 0-10, just be consistent within a topic; ties broken by
+whichever was proposed first), and promotes the top ones into
+`items.agent.jsonl`, up to that topic's remaining slice of
+`config.json`'s `agent_publish.default_daily_quota` (default `6`,
+overridable per topic in `daily_quota_by_topic`) for the day. A candidate
+that sits unpromoted for `candidates_max_age_days` (default 30) is dropped
+silently — it never went live, so it's safe to propose again later.
 
-Topics are free-form: publishing to a topic that isn't in `config.json`'s
+**Once promoted, score is done.** A promoted item is just an ordinary
+archived item: `rss_aggregator.py` reads `items.agent.jsonl` like any other
+item input, so per-feed `retention_hours`/`retention_days`/`max_items` apply
+and — per [Retention](#retention) — purely by recency. Score never again
+decides who stays; an old high-scored item can't permanently block a new
+one from ever appearing.
+
+Topics are free-form: proposing to a topic that isn't in `config.json`'s
 `feeds` still works — it gets `default_feed`'s retention policy and a
-`<topic>.xml` feed is generated automatically.
+`<topic>.xml` feed is generated automatically once something is promoted
+into it.
 
-On a successful `publish_item`, the server also regenerates the feeds
-(`.venv/bin/python3 rss_aggregator.py` in-process) and runs `git add` +
-`git commit` + `git push` for the affected files (`items.agent.jsonl`,
-`public/`, `processed_links.txt`) — no manual commit step needed, GitHub
-Pages picks it up on the next deploy. If `push` is rejected because the
-hourly discovery Action committed in the meantime, it fetches, rebases onto
-the new commit, regenerates the feeds again against the merged inputs, and
-retries once; if that still fails (or the rebase itself conflicts), the tool
-response's `git` field reports it so you can resolve it by hand. The
-response's `status` field always reflects whether the item itself was
-accepted (`published`/`duplicate`/`quota_exceeded`/`invalid`) independent of
-whether the git sync succeeded.
+`items.discovered.jsonl` and `items.agent.jsonl` also get a physical size
+cap via `config.json`'s `item_log_retention` (default 500 entries each,
+pure-recency eviction) so they don't grow forever — safe because
+`processed_links.txt` remembers dedup history independently of them.
+
+`publish_pending()` runs `rss_aggregator.publish()` (which promotes as part
+of its normal pipeline, then regenerates the feeds) and commits + pushes
+`items.agent.jsonl`, `items.candidates.jsonl`, `public/`, and
+`processed_links.txt` together. Nothing reaches GitHub Pages, another
+machine, or the hourly Action until this happens — either you call it, or
+you leave it to the next scheduled run. If `push` is rejected because the
+hourly Action committed in the meantime, it fetches, rebases onto the new
+commit, re-promotes/regenerates against the merged inputs, and retries once;
+if that still fails (or the rebase itself conflicts), the tool response's
+`git` field reports it so you can resolve it by hand.
 
 Run the server directly for debugging with `./run_mcp_server.sh` (after
 `./setup.sh`), which launches `mcp_server.py` with the local venv's
@@ -348,7 +358,7 @@ interpreter no matter what directory it's invoked from.
 | Scope | What it does | When to pick it |
 |---|---|---|
 | This project only | Writes into a config file inside this repo (`.mcp.json` for Claude Code, `.cursor/mcp.json` for Cursor, `.codex/config.toml` for Codex CLI) | You only ever publish to this feed while working inside this repo, or you want the registration to travel with the repo (e.g. for a collaborator who clones it and runs `setup.sh` themselves) |
-| All projects (system-wide) | Writes into your user-level config (`~/.claude.json` user scope, `~/.cursor/mcp.json`, `~/.codex/config.toml`) with an **absolute** path to `run_mcp_server.sh` | You want to call `publish_item` etc. from any folder — it always operates on this one repo's `config.json`/`items.agent.jsonl`, since `run_mcp_server.sh` resolves paths relative to itself, not your current directory |
+| All projects (system-wide) | Writes into your user-level config (`~/.claude.json` user scope, `~/.cursor/mcp.json`, `~/.codex/config.toml`) with an **absolute** path to `run_mcp_server.sh` | You want to call `propose_item` etc. from any folder — it always operates on this one repo's `config.json`/`items.agent.jsonl`, since `run_mcp_server.sh` resolves paths relative to itself, not your current directory |
 
 Codex CLI has one extra wrinkle: it only loads a project-local
 `.codex/config.toml` for **trusted** projects, so choosing "this project only"

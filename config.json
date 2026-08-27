@@ -15,12 +15,19 @@
   "processed_links": "processed_links.txt",
   "processed_links_retention_days": 365,
   "default_feed": {
-    "max_items": 150
+    "max_items": 150,
+    "retention_days": 180
+  },
+  "item_log_retention": {
+    "items.discovered.jsonl": {"max_items": 500},
+    "items.agent.jsonl": {"max_items": 500}
   },
   "agent_publish": {
     "output_path": "items.agent.jsonl",
+    "candidates_path": "items.candidates.jsonl",
     "default_daily_quota": 6,
-    "daily_quota_by_topic": {}
+    "daily_quota_by_topic": {},
+    "candidates_max_age_days": 30
   },
   "feeds": {
     "news": {
@@ -33,13 +40,15 @@
       "title": "Research",
       "description": "Papers, technical notes, and research leads.",
       "output": "research.xml",
-      "max_items": 100
+      "max_items": 100,
+      "retention_days": 180
     },
     "investing": {
       "title": "Investing",
       "description": "Market notes, filings, and investing research.",
       "output": "investing.xml",
-      "max_items": 100
+      "max_items": 100,
+      "retention_days": 180
     }
   },
   "combined_feed": {

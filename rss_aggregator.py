@@ -104,6 +104,15 @@ def load_config(path: Path = DEFAULT_CONFIG_PATH) -> dict[str, Any]:
     config.setdefault("processed_links_retention_days", 365)
     config.setdefault("combined_feed", {"title": "All", "output": "all.xml"})
     config.setdefault("default_feed", {"max_items": 150})
+    config.setdefault("item_log_retention", {})
+
+    agent_publish = config.setdefault("agent_publish", {})
+    agent_publish.setdefault("output_path", "items.agent.jsonl")
+    agent_publish.setdefault("candidates_path", "items.candidates.jsonl")
+    agent_publish.setdefault("default_daily_quota", 6)
+    agent_publish.setdefault("daily_quota_by_topic", {})
+    agent_publish.setdefault("candidates_max_age_days", 30)
+
     config.setdefault("site", {})
     config["site"].setdefault("title", "Personal RSS")
     config["site"].setdefault(
@@ -111,6 +120,42 @@ def load_config(path: Path = DEFAULT_CONFIG_PATH) -> dict[str, Any]:
     )
     config["site"].setdefault("site_url", "")
     return config
+
+
+def agent_publish_settings(config: dict[str, Any]) -> dict[str, Any]:
+    settings = dict(config.get("agent_publish", {}))
+    settings.setdefault("output_path", "items.agent.jsonl")
+    settings.setdefault("candidates_path", "items.candidates.jsonl")
+    settings.setdefault("default_daily_quota", 6)
+    settings.setdefault("daily_quota_by_topic", {})
+    settings.setdefault("candidates_max_age_days", 30)
+    return settings
+
+
+def count_topic_publishes_today(topic: str, agent_path: Path, now: datetime) -> int:
+    if not agent_path.exists():
+        return 0
+
+    today = now.astimezone(timezone.utc).date()
+    count = 0
+    with agent_path.open("r", encoding="utf-8") as f:
+        for line in f:
+            stripped = line.strip()
+            if not stripped:
+                continue
+            try:
+                item = json.loads(stripped)
+            except json.JSONDecodeError:
+                continue
+            if str(item.get("category", "")).strip().lower() != topic:
+                continue
+            try:
+                published_at = parse_datetime(item.get("published_at"))
+            except ValueError:
+                continue
+            if published_at.astimezone(timezone.utc).date() == today:
+                count += 1
+    return count
 
 
 def load_structured_items(paths: list[str], now: datetime) -> list[NormalizedItem]:
@@ -309,25 +354,16 @@ def route_items(
 def apply_retention(
     items: list[NormalizedItem], policy: dict[str, Any], now: datetime
 ) -> list[NormalizedItem]:
-    retained = items
+    retained = sort_items(items)
     retention_delta = retention_window(policy)
     if retention_delta is not None:
         cutoff = now - retention_delta
         retained = [item for item in retained if item.published_at >= cutoff]
 
     max_items = policy.get("max_items")
-    if max_items is not None and len(retained) > int(max_items):
-        retained = rank_items(retained)[: int(max_items)]
-    return sort_items(retained)
-
-
-def rank_items(items: list[NormalizedItem]) -> list[NormalizedItem]:
-    """Order items by score first (an optional agent-assigned importance/
-    interest rating; unscored items default to 0.0), recency as tiebreak.
-    Only used to decide which items survive a max_items cap -- items are
-    always re-sorted back into reverse-chronological order for output, so
-    unscored feeds (score always 0.0) behave exactly as before."""
-    return sorted(items, key=lambda item: (item.score, item.published_at, item.title), reverse=True)
+    if max_items is not None:
+        retained = retained[: int(max_items)]
+    return retained
 
 
 def retention_window(policy: dict[str, Any]) -> timedelta | None:
@@ -587,9 +623,127 @@ def processed_link_urls(path: Path) -> set[str]:
     return set(store.links.keys())
 
 
+def read_jsonl_raw(path: Path) -> list[dict[str, Any]]:
+    if not path.exists():
+        return []
+    items: list[dict[str, Any]] = []
+    with path.open("r", encoding="utf-8") as f:
+        for line in f:
+            stripped = line.strip()
+            if not stripped:
+                continue
+            try:
+                items.append(json.loads(stripped))
+            except json.JSONDecodeError:
+                continue
+    return items
+
+
+def write_jsonl_raw(path: Path, items: list[dict[str, Any]]) -> None:
+    with path.open("w", encoding="utf-8") as f:
+        for item in items:
+            f.write(json.dumps(item, ensure_ascii=False, sort_keys=True) + "\n")
+
+
+def promote_candidates(config: dict[str, Any], now: datetime) -> int:
+    """Rank pending candidates by score and promote up to each topic's
+    remaining daily quota into the published archive. Score only ever
+    decides *this*: once promoted, an item ages out by plain recency like
+    any other archived item."""
+    settings = agent_publish_settings(config)
+    candidates_path = Path(settings["candidates_path"])
+    candidates = read_jsonl_raw(candidates_path)
+    if not candidates:
+        return 0
+
+    max_age = timedelta(days=float(settings["candidates_max_age_days"]))
+    known = {item.normalized_url for item in load_structured_items(config["item_inputs"], now)}
+    known |= processed_link_urls(Path(config["processed_links"]))
+
+    fresh: list[dict[str, Any]] = []
+    for raw in candidates:
+        try:
+            proposed_at = parse_datetime(raw.get("published_at"), fallback=now)
+        except ValueError:
+            proposed_at = now
+        if now - proposed_at > max_age:
+            continue  # never went live -- drop silently, safe to re-propose later
+        if normalize_url(str(raw.get("url", ""))) in known:
+            continue  # already published elsewhere -- avoid double-promotion
+        fresh.append(raw)
+
+    by_topic: dict[str, list[dict[str, Any]]] = {}
+    for raw in fresh:
+        topic = str(raw.get("category", "")).strip().lower()
+        by_topic.setdefault(topic, []).append(raw)
+
+    output_path = Path(settings["output_path"])
+    quota_by_topic = settings["daily_quota_by_topic"]
+    default_quota = settings["default_daily_quota"]
+
+    promoted: list[dict[str, Any]] = []
+    remaining: list[dict[str, Any]] = []
+    for topic, topic_candidates in by_topic.items():
+        quota = int(quota_by_topic.get(topic, default_quota))
+        already_published = count_topic_publishes_today(topic, output_path, now)
+        slots = max(0, quota - already_published)
+
+        ranked = sorted(
+            topic_candidates,
+            key=lambda raw: (float(raw.get("score") or 0), str(raw.get("published_at", ""))),
+            reverse=True,
+        )
+        promoted.extend(ranked[:slots])
+        remaining.extend(ranked[slots:])
+
+    if promoted:
+        for raw in promoted:
+            raw["published_at"] = now.astimezone(timezone.utc).isoformat()
+        with output_path.open("a", encoding="utf-8") as f:
+            for raw in promoted:
+                f.write(json.dumps(raw, ensure_ascii=False, sort_keys=True) + "\n")
+
+    write_jsonl_raw(candidates_path, remaining)
+    return len(promoted)
+
+
+def prune_item_log(
+    path: Path,
+    max_items: int,
+    processed_links_path: Path,
+    processed_links_retention_days: int,
+    now: datetime,
+) -> int:
+    """Physically trim a JSONL item log to its newest `max_items` entries by
+    published_at, recording every dropped URL into the permanent
+    processed_links.txt ledger first so dedup memory survives the trim."""
+    raw_items = read_jsonl_raw(path)
+    if len(raw_items) <= max_items:
+        return 0
+
+    def published_at_of(raw: dict[str, Any]) -> datetime:
+        try:
+            return parse_datetime(raw.get("published_at"), fallback=now)
+        except ValueError:
+            return now
+
+    ordered = sorted(raw_items, key=published_at_of, reverse=True)
+    keep, drop = ordered[:max_items], ordered[max_items:]
+
+    store = ProcessedLinkStore(processed_links_path, processed_links_retention_days)
+    store.load()
+    store.mark([normalize_item(raw, now) for raw in drop])
+    store.write(now)
+
+    write_jsonl_raw(path, keep)
+    return len(drop)
+
+
 def publish(config_path: Path, fetch_rss: bool = True, now: datetime | None = None) -> dict[str, int]:
     now = now or datetime.now(timezone.utc)
     config = load_config(config_path)
+
+    promote_candidates(config, now)
 
     items = load_structured_items(config["item_inputs"], now)
     if fetch_rss:
@@ -606,6 +760,16 @@ def publish(config_path: Path, fetch_rss: bool = True, now: datetime | None = No
     store.load()
     store.mark(combined)
     store.write(now)
+
+    processed_links_retention_days = int(config.get("processed_links_retention_days", 365))
+    for raw_path, policy in config.get("item_log_retention", {}).items():
+        prune_item_log(
+            Path(raw_path),
+            int(policy["max_items"]),
+            Path(config["processed_links"]),
+            processed_links_retention_days,
+            now,
+        )
 
     counts = {feed_name: len(feed_items) for feed_name, feed_items in feeds.items()}
     counts["all"] = len(combined)

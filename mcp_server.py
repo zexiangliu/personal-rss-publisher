@@ -2,12 +2,25 @@
 """MCP server for agent-driven RSS publishing.
 
 Curation judgment (what is worth publishing) lives in the calling agent, not
-in this repo. This server only owns what the repo must own reliably: URL
-dedup against everything already published, feed lifespan (handled by
-`rss_aggregator.py`'s per-feed retention config), and a per-topic daily
-publish quota so an agent that found many good candidates can only push a
-few at a time. Topics are free-form: an unconfigured topic name still works
-and gets `config.json`'s `default_feed` retention policy.
+in this repo. Publishing is two phases:
+
+- `propose_item` queues a scored candidate into `items.candidates.jsonl`.
+  This is a single cheap local file append -- safe for several agent
+  sessions to call at once, and it never touches git.
+- Promotion -- `rss_aggregator.promote_candidates()`, run as part of every
+  `rss_aggregator.py` invocation (the hourly discovery Action, or this
+  server's `publish_pending` tool) -- ranks each topic's pending candidates
+  by score and promotes up to that topic's remaining daily quota into the
+  published archive (`items.agent.jsonl`). Once promoted, score no longer
+  matters: the item ages out by plain recency like anything else, so an old
+  high-scored item can never block a new one forever.
+
+This server only owns what the repo must own reliably: URL dedup against
+everything already published or pending, feed lifespan (handled by
+`rss_aggregator.py`'s per-feed retention config), and the per-topic daily
+quota enforced at promotion time. Topics are free-form: an unconfigured
+topic name still works and gets `config.json`'s `default_feed` retention
+policy.
 """
 
 from __future__ import annotations
@@ -26,6 +39,7 @@ from mcp.server.mcpserver import MCPServer
 from discover_items import append_jsonl, load_known_urls
 from rss_aggregator import (
     DEFAULT_CONFIG_PATH,
+    agent_publish_settings,
     load_config,
     normalize_url,
     processed_link_urls,
@@ -44,12 +58,11 @@ server = MCPServer("personal-rss-publisher")
 
 
 @dataclass(frozen=True)
-class PublishResult:
-    status: str  # "published" | "duplicate" | "quota_exceeded" | "invalid"
+class ProposeResult:
+    status: str  # "proposed" | "duplicate" | "invalid"
     message: str
     item_id: str = ""
     topic: str = ""
-    remaining_quota: int | None = None
 
 
 @dataclass(frozen=True)
@@ -123,44 +136,8 @@ def regenerate_feeds() -> None:
     rss_publish(DEFAULT_CONFIG_PATH, fetch_rss=False, now=datetime.now(timezone.utc))
 
 
-def agent_publish_settings(config: dict[str, Any]) -> dict[str, Any]:
-    settings = dict(config.get("agent_publish", {}))
-    settings.setdefault("output_path", "items.agent.jsonl")
-    settings.setdefault("default_daily_quota", 3)
-    settings.setdefault("daily_quota_by_topic", {})
-    return settings
-
-
 def known_url_paths(config: dict[str, Any]) -> list[Path]:
     return [Path(path) for path in config["item_inputs"]]
-
-
-def count_topic_publishes_today(topic: str, agent_path: Path, now: datetime) -> int:
-    if not agent_path.exists():
-        return 0
-
-    today = now.astimezone(timezone.utc).date()
-    count = 0
-    with agent_path.open("r", encoding="utf-8") as f:
-        for line in f:
-            stripped = line.strip()
-            if not stripped:
-                continue
-            try:
-                item = json.loads(stripped)
-            except json.JSONDecodeError:
-                continue
-            if str(item.get("category", "")).strip().lower() != topic:
-                continue
-            try:
-                published_at = datetime.fromisoformat(
-                    str(item.get("published_at", "")).replace("Z", "+00:00")
-                )
-            except ValueError:
-                continue
-            if published_at.astimezone(timezone.utc).date() == today:
-                count += 1
-    return count
 
 
 def list_topics_core(config: dict[str, Any]) -> list[dict[str, Any]]:
@@ -178,7 +155,8 @@ def list_topics_core(config: dict[str, Any]) -> list[dict[str, Any]]:
 
 def check_duplicate_core(url: str, config: dict[str, Any]) -> dict[str, Any]:
     normalized = normalize_url(url)
-    for path in known_url_paths(config):
+    candidates_path = Path(agent_publish_settings(config)["candidates_path"])
+    for path in known_url_paths(config) + [candidates_path]:
         if path.exists() and normalized in load_known_urls([path]):
             return {"duplicate": True, "found_in": str(path)}
     processed_path = Path(config["processed_links"])
@@ -187,30 +165,43 @@ def check_duplicate_core(url: str, config: dict[str, Any]) -> dict[str, Any]:
     return {"duplicate": False, "found_in": ""}
 
 
-def list_recent_core(topic: str, limit: int, config: dict[str, Any]) -> list[dict[str, Any]]:
-    topic = topic.strip().lower()
+def _read_topic_items(path: Path, topic: str) -> list[dict[str, Any]]:
+    if path.suffix.lower() != ".jsonl" or not path.exists():
+        return []
     items: list[dict[str, Any]] = []
-    for raw_path in config["item_inputs"]:
-        path = Path(raw_path)
-        if path.suffix.lower() != ".jsonl" or not path.exists():
-            continue
-        with path.open("r", encoding="utf-8") as f:
-            for line in f:
-                stripped = line.strip()
-                if not stripped:
-                    continue
-                try:
-                    item = json.loads(stripped)
-                except json.JSONDecodeError:
-                    continue
-                if not topic or str(item.get("category", "")).strip().lower() == topic:
-                    items.append(item)
+    with path.open("r", encoding="utf-8") as f:
+        for line in f:
+            stripped = line.strip()
+            if not stripped:
+                continue
+            try:
+                item = json.loads(stripped)
+            except json.JSONDecodeError:
+                continue
+            if not topic or str(item.get("category", "")).strip().lower() == topic:
+                items.append(item)
+    return items
+
+
+def list_recent_core(
+    topic: str, limit: int, config: dict[str, Any], status: str = "published"
+) -> list[dict[str, Any]]:
+    topic = topic.strip().lower()
+    status = status.strip().lower()
+    items: list[dict[str, Any]] = []
+
+    if status in ("published", "all"):
+        for raw_path in config["item_inputs"]:
+            items.extend(_read_topic_items(Path(raw_path), topic))
+    if status in ("pending", "all"):
+        candidates_path = Path(agent_publish_settings(config)["candidates_path"])
+        items.extend(_read_topic_items(candidates_path, topic))
 
     items.sort(key=lambda item: str(item.get("published_at", "")), reverse=True)
     return items[:limit]
 
 
-def publish_item_core(
+def propose_item_core(
     topic: str,
     title: str,
     url: str,
@@ -223,34 +214,28 @@ def publish_item_core(
     *,
     config: dict[str, Any],
     now: datetime,
-) -> PublishResult:
+) -> ProposeResult:
+    """Queue a candidate for the next promotion round. No quota check here --
+    quota is enforced once, at promotion time, across all pending candidates
+    for the topic (see rss_aggregator.promote_candidates)."""
     topic = topic.strip().lower()
     title = title.strip()
     url = url.strip()
     if not topic or not title or not url:
-        return PublishResult(status="invalid", message="topic, title, and url are required.")
+        return ProposeResult(status="invalid", message="topic, title, and url are required.")
+
+    settings = agent_publish_settings(config)
+    candidates_path = Path(settings["candidates_path"])
 
     known = set()
-    for path in known_url_paths(config):
+    for path in known_url_paths(config) + [candidates_path]:
         if path.exists():
             known |= load_known_urls([path])
     processed_path = Path(config["processed_links"])
     if processed_path.exists():
         known |= processed_link_urls(processed_path)
     if normalize_url(url) in known:
-        return PublishResult(status="duplicate", message=f"{url} is already published.", topic=topic)
-
-    settings = agent_publish_settings(config)
-    agent_path = Path(settings["output_path"])
-    quota = int(settings["daily_quota_by_topic"].get(topic, settings["default_daily_quota"]))
-    published_today = count_topic_publishes_today(topic, agent_path, now)
-    if published_today >= quota:
-        return PublishResult(
-            status="quota_exceeded",
-            message=f"Daily quota of {quota} for topic '{topic}' already reached.",
-            topic=topic,
-            remaining_quota=0,
-        )
+        return ProposeResult(status="duplicate", message=f"{url} is already published or pending.", topic=topic)
 
     item_id = stable_guid(url)
     item = {
@@ -266,14 +251,13 @@ def publish_item_core(
         "content_html": content_html.strip(),
         "score": float(score),
     }
-    append_jsonl(agent_path, [item])
+    append_jsonl(candidates_path, [item])
 
-    return PublishResult(
-        status="published",
-        message=f"Published to '{topic}'.",
+    return ProposeResult(
+        status="proposed",
+        message=f"Queued for topic '{topic}'; promoted on the next publish cycle if it ranks high enough.",
         item_id=item_id,
         topic=topic,
-        remaining_quota=quota - published_today - 1,
     )
 
 
@@ -284,26 +268,28 @@ def current_config() -> dict[str, Any]:
 @server.tool()
 def list_topics() -> list[dict[str, Any]]:
     """List configured RSS topics/feeds. Any other topic name also works with
-    publish_item -- an unconfigured topic gets config.json's default_feed
+    propose_item -- an unconfigured topic gets config.json's default_feed
     retention policy instead of a hand-tuned one."""
     return list_topics_core(current_config())
 
 
 @server.tool()
 def check_duplicate(url: str) -> dict[str, Any]:
-    """Check whether a URL has already been published to any feed, so the
+    """Check whether a URL is already published or already pending, so the
     agent can skip drafting a summary for something already covered."""
     return check_duplicate_core(url, current_config())
 
 
 @server.tool()
-def list_recent(topic: str = "", limit: int = 20) -> list[dict[str, Any]]:
-    """List recently published items, optionally filtered by topic."""
-    return list_recent_core(topic, limit, current_config())
+def list_recent(topic: str = "", limit: int = 20, status: str = "published") -> list[dict[str, Any]]:
+    """List recent items, optionally filtered by topic. `status` is
+    "published" (default, what's actually live), "pending" (queued
+    candidates awaiting promotion), or "all"."""
+    return list_recent_core(topic, limit, current_config(), status)
 
 
 @server.tool()
-def publish_item(
+def propose_item(
     topic: str,
     title: str,
     url: str,
@@ -314,20 +300,21 @@ def publish_item(
     content_html: str = "",
     score: float = 0.0,
 ) -> dict[str, Any]:
-    """Publish one item to a topic feed. Enforces URL dedup across every
-    configured item input and a per-topic daily publish quota (see
-    config.json's agent_publish.default_daily_quota) -- call check_duplicate
-    or list_recent first so quota isn't spent on items already published.
-    `score` is an optional importance/interest rating (any scale you like,
-    e.g. 0-10 -- just be consistent within a topic): when a feed's max_items
-    cap forces items out, higher-scored items are kept over lower-scored
-    ones regardless of recency, so you can publish generously and let the
-    cap surface the best ones. Items left at the default 0.0 score keep the
-    old recency-only behavior. On success this also regenerates the RSS
-    feeds and commits + pushes them (plus the new item) to the repo's git
-    remote, so GitHub Pages picks it up on the next deploy."""
-    config = current_config()
-    result = publish_item_core(
+    """Queue a candidate item for a topic. This does NOT publish it and does
+    NOT touch git -- it's a cheap local append, safe to call many times in a
+    row (or from several agent sessions at once) while you're still
+    evaluating candidates. `score` is an importance/interest rating (any
+    scale you like, e.g. 0-10 -- just be consistent within a topic): at the
+    next promotion round (the hourly discovery Action, or call
+    publish_pending to do it now) each topic's pending candidates are ranked
+    by score and the top ones are promoted into the live feed, up to that
+    topic's remaining daily quota (config.json's
+    agent_publish.default_daily_quota). Once promoted, score no longer
+    matters -- the item just ages out by plain recency like everything else,
+    so a good old item can never permanently block a new one. Call
+    check_duplicate or list_recent first so you don't waste effort on
+    something already published or already queued."""
+    result = propose_item_core(
         topic,
         title,
         url,
@@ -337,24 +324,37 @@ def publish_item(
         image_url,
         content_html,
         score,
-        config=config,
+        config=current_config(),
         now=datetime.now(timezone.utc),
     )
-    response = asdict(result)
+    return asdict(result)
 
-    if result.status == "published":
-        regenerate_feeds()
-        settings = agent_publish_settings(config)
-        sync_paths = [settings["output_path"], config["output_dir"], config["processed_links"]]
-        sync = commit_and_push(
-            sync_paths,
-            f'agent: publish "{title.strip()}" to {result.topic}',
-            repo_dir=REPO_DIR,
-            on_rebase=regenerate_feeds,
-        )
-        response["git"] = asdict(sync)
 
-    return response
+@server.tool()
+def publish_pending() -> dict[str, Any]:
+    """Run a publish cycle right now instead of waiting for the next hourly
+    discovery Action: promotes each topic's highest-scored pending
+    candidates (up to its remaining daily quota) into the live feed,
+    regenerates the RSS files, and commits + pushes everything (the
+    promoted items, the updated pending queue, and the generated feeds) to
+    the repo's git remote so GitHub Pages picks it up."""
+    config = current_config()
+    counts = rss_publish(DEFAULT_CONFIG_PATH, fetch_rss=False, now=datetime.now(timezone.utc))
+
+    settings = agent_publish_settings(config)
+    sync_paths = [
+        settings["output_path"],
+        settings["candidates_path"],
+        config["output_dir"],
+        config["processed_links"],
+    ]
+    sync = commit_and_push(
+        sync_paths,
+        "agent: publish pending candidates",
+        repo_dir=REPO_DIR,
+        on_rebase=regenerate_feeds,
+    )
+    return {"counts": counts, "git": asdict(sync)}
 
 
 if __name__ == "__main__":
