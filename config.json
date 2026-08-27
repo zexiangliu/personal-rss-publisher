@@ -7,6 +7,7 @@
   "output_dir": "public",
   "item_inputs": [
     "items.jsonl",
+    "items.discovered.jsonl",
     "items.json"
   ],
   "rss_sources": "rss_sources.json",

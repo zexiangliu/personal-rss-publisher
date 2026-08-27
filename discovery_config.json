@@ -1,0 +1,29 @@
+{
+  "output_path": "items.discovered.jsonl",
+  "dedupe_against": [
+    "items.jsonl",
+    "items.discovered.jsonl"
+  ],
+  "defaults": {
+    "enabled": false,
+    "lookback_days": 7,
+    "max_items_per_source": 20,
+    "summary_max_chars": 600,
+    "min_score": 0,
+    "include_keywords": [],
+    "exclude_keywords": [],
+    "rank_keywords": {}
+  },
+  "sources": [
+    {
+      "enabled": true,
+      "type": "hk01_zone",
+      "name": "香港01 國際",
+      "url": "https://www.hk01.com/zone/4/%E5%9C%8B%E9%9A%9B",
+      "zone_id": "4",
+      "category": "news",
+      "lookback_days": 7,
+      "max_items_per_source": 20
+    }
+  ]
+}

@@ -38,14 +38,17 @@ jobs:
       - name: Run tests
         run: python -m unittest discover -s tests -v
 
+      - name: Discover items
+        run: python discover_items.py
+
       - name: Generate RSS feeds
         run: python rss_aggregator.py
 
-      - name: Commit generated feeds and processed links
+      - name: Commit discovered items and generated feeds
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add public processed_links.txt
+          git add items.discovered.jsonl public processed_links.txt
           if git diff --cached --quiet; then
             echo "No generated feed changes to commit."
           else

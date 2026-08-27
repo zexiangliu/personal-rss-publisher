@@ -6,6 +6,7 @@ The Phase 1 pipeline is intentionally simple:
 
 ```text
 items.json / items.jsonl
+items.discovered.jsonl
         ↓
 rss_aggregator.py
         ↓
@@ -19,7 +20,7 @@ GitHub Pages
 e-ink RSS reader
 ```
 
-There is no LLM integration, ranking, database, server, React app, or recommendation system in Phase 1.
+Phase 2 starts upstream of `items.discovered.jsonl`: discovery scripts can fetch, filter, and rank sources, but the RSS publisher still only consumes normalized items.
 
 ## How This Differs From Upstream
 
@@ -49,6 +50,9 @@ It changes the main shape:
 .
 ├── .github/workflows/rss_aggregator.yml
 ├── config.json
+├── discover_items.py
+├── discovery_config.json
+├── items.discovered.jsonl
 ├── items.jsonl
 ├── processed_links.txt
 ├── public/
@@ -60,7 +64,9 @@ It changes the main shape:
 ├── requirements.txt
 ├── rss_aggregator.py
 ├── rss_sources.json
-└── tests/test_rss_aggregator.py
+└── tests/
+    ├── test_discover_items.py
+    └── test_rss_aggregator.py
 ```
 
 ## Install And Run Locally
@@ -69,6 +75,7 @@ It changes the main shape:
 python -m venv .venv
 source .venv/bin/activate
 pip install -r requirements.txt
+python discover_items.py
 python rss_aggregator.py
 python -m unittest discover -s tests -v
 ```
@@ -178,6 +185,46 @@ To skip RSS fetching during a local run:
 python rss_aggregator.py --no-fetch-rss
 ```
 
+## Phase 2 Discovery
+
+`discover_items.py` reads `discovery_config.json` and appends normalized items to `items.discovered.jsonl`.
+
+The first enabled discovery source follows the HK01 international news page:
+
+```json
+{
+  "enabled": true,
+  "type": "hk01_zone",
+  "name": "香港01 國際",
+  "url": "https://www.hk01.com/zone/4/%E5%9C%8B%E9%9A%9B",
+  "zone_id": "4",
+  "category": "news"
+}
+```
+
+Run discovery and publish:
+
+```bash
+python discover_items.py
+python rss_aggregator.py
+```
+
+The scheduled GitHub Action does the same thing automatically. It commits `items.discovered.jsonl`, `processed_links.txt`, and the generated `public/` feeds so recently discovered items stay available until retention removes them.
+
+Discovery source types currently supported:
+
+- `rss`: ordinary RSS/Atom feeds
+- `hk01_zone`: HK01 zone pages such as `https://www.hk01.com/zone/4/國際`
+
+Simple filtering/ranking fields are available per source:
+
+- `lookback_days`
+- `max_items_per_source`
+- `include_keywords`
+- `exclude_keywords`
+- `rank_keywords`
+- `min_score`
+
 ## GitHub Pages
 
 1. Push this repository to GitHub.
@@ -205,7 +252,7 @@ Subscribe to those `.xml` URLs from your e-ink reader's RSS app.
 
 ## Phase 2 Boundary
 
-Future agents only need to produce normalized JSON/JSONL items. They should not need to know RSS, XML, GitHub Pages, or e-ink reader details.
+Discovery agents only need to produce normalized JSON/JSONL items. They should not need to know RSS, XML, GitHub Pages, or e-ink reader details.
 
 ```text
 web / RSS / arXiv / search / AI agents
