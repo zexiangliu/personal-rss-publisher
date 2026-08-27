@@ -4,7 +4,17 @@
     <title>Research</title>
     <link>https://zexiangliu.github.io/personal-rss-publisher/</link>
     <description>Papers, technical notes, and research leads.</description>
-    <lastBuildDate>Thu, 27 Aug 2026 23:02:21 GMT</lastBuildDate>
+    <lastBuildDate>Thu, 27 Aug 2026 23:04:19 GMT</lastBuildDate>
     <generator>personal-rss-publisher</generator>
+    <item>
+      <title>Gemini Robotics 2：全身控制、灵巧操作与多机协作</title>
+      <link>https://deepmind.google/blog/gemini-robotics-2-brings-whole-body-intelligence-to-robots/</link>
+      <guid isPermaLink="false">url:bba16244a7af23a2584cbd65</guid>
+      <pubDate>Thu, 27 Aug 2026 23:04:19 GMT</pubDate>
+      <category>research</category>
+      <source url="https://deepmind.google/blog/">Google DeepMind</source>
+      <description>DeepMind 把机器人智能拆成 VLA / 具身推理 / 端侧三层：首次用同一套模型控制完整人形机器人（走路+灵巧+多机协作），并发布了 ASIMOV-Agentic 安全基准。多指灵巧成功率仍显著低于夹爪与 whole-body 任务。</description>
+      <content:encoded><![CDATA[<p><strong>Why this matters:</strong> DeepMind 把 VLA 从上半身操作拉到全身 humanoid 控制，并把推理、动作和端侧部署拆成三个模型。这是目前实验室发布里少有的、带绝对成功率的 whole-body physical AI 结果。</p><p>Gemini Robotics 2 是 DeepMind 的三层机器人智能栈。<strong>Gemini Robotics 2</strong>（VLA）把视觉+语言转成电机指令，第一次能控制完整人形机器人（从脚到指尖）；<strong>ER 2</strong>（VLM agent）负责分钟级多步推理、进度追踪和多机协作；<strong>On-Device 2</strong>在本地跑，并声称几小时、不足 200 条数据就能适配到新本体。验证平台包括 Apptronik Apollo 2（SharpaWave / Inspire 手）和 Franka Duo。多指灵巧仍是难点。安全方面发布了 ASIMOV-Agentic，用来测试 agent 拒绝不安全 tool call、任务可行性预判和人在附近时的安全停机。ER 2 已在 Google AI Studio 可用。</p>]]></content:encoded>
+    </item>
   </channel>
 </rss>
