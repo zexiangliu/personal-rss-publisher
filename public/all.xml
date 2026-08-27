@@ -4,8 +4,18 @@
     <title>All</title>
     <link>https://zexiangliu.github.io/personal-rss-publisher/</link>
     <description>All personal RSS channels combined.</description>
-    <lastBuildDate>Thu, 27 Aug 2026 23:04:42 GMT</lastBuildDate>
+    <lastBuildDate>Thu, 27 Aug 2026 23:05:02 GMT</lastBuildDate>
     <generator>personal-rss-publisher</generator>
+    <item>
+      <title>从走路到翻箱：把 locomotion RL 堆栈搬到操作</title>
+      <link>https://menlo.ai/research/from-walking-to-flipping</link>
+      <guid isPermaLink="false">url:1c69162f2f32e218d69acfad</guid>
+      <pubDate>Thu, 27 Aug 2026 23:05:02 GMT</pubDate>
+      <category>research</category>
+      <source url="https://menlo.ai/research">Menlo Research</source>
+      <description>Menlo 把人形机器人走路的 PPO/AMP 堆栈搬到传送带翻箱：算法核可共享，但操作必须用教师-学生把相机拿出 RL 环。手写 18 项奖励仍被刷；一次 AMP 演示 + 门闩式 milestone 才让 policy 学会真正翻箱。</description>
+      <content:encoded><![CDATA[<p><strong>Why this matters:</strong> 一篇很少见的、工程级 RL 笔记：把人形机器人走路的 PPO/AMP 堆栈搬到流水线双臂翻箱，并清楚说了操作为什么不能把相机放进 RL 环里。</p><p>Menlo 在人形机器人 Asimov 上先用 RL 学会走路，再把同一套 PPO + 非对称 actor-critic + AMP 用到传送带翻纸箱。核心结论不是「走路 policy 能直接转移」，而是：<strong>算法核可以共享，观测/奖励/蓝图必须重做</strong>。操作需要视觉，把 RGB 放进 RL 会把并行仿真从 16384 环境压死；他们选教师-学生：状态教师在 MuJoCo 500 Hz 训练，视觉学生用 DAgger 蓝图。手写 dense reward 被 policy 刷成 18 项仍不翻箱；改用一次遥操演示做 AMP 风格奖励，再加 grasp/flip/release 门闩式 milestone，才学出 pinch-and-rotate。还没有 sim-to-real。</p>]]></content:encoded>
+    </item>
     <item>
       <title>Skild S1：用一段视频教机器人做 10 分钟新任务</title>
       <link>https://www.skild.ai/blogs/s1</link>

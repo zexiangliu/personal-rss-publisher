@@ -37,3 +37,4 @@
 2026-08-27T18:52:42+00:00 https://www.hk01.com/即時國際/60384411/特朗普正式簽署行政命令-安大略湖更名為-美國湖
 2026-08-27T23:04:19.983926+00:00 https://deepmind.google/blog/gemini-robotics-2-brings-whole-body-intelligence-to-robots/
 2026-08-27T23:04:42.090029+00:00 https://www.skild.ai/blogs/s1
+2026-08-27T23:05:02.649554+00:00 https://menlo.ai/research/from-walking-to-flipping
