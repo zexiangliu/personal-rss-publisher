@@ -1,0 +1,41 @@
+{
+  "site": {
+    "title": "Personal RSS",
+    "description": "Personal multi-channel RSS feeds for an e-ink reader.",
+    "site_url": "https://zexiangliu.github.io/personal-rss-publisher/"
+  },
+  "output_dir": "public",
+  "item_inputs": [
+    "items.jsonl",
+    "items.json"
+  ],
+  "rss_sources": "rss_sources.json",
+  "processed_links": "processed_links.txt",
+  "processed_links_retention_days": 365,
+  "feeds": {
+    "news": {
+      "title": "News",
+      "description": "Curated personal news items.",
+      "output": "news.xml",
+      "retention_days": 7
+    },
+    "research": {
+      "title": "Research",
+      "description": "Papers, technical notes, and research leads.",
+      "output": "research.xml",
+      "max_items": 100
+    },
+    "investing": {
+      "title": "Investing",
+      "description": "Market notes, filings, and investing research.",
+      "output": "investing.xml",
+      "max_items": 100
+    }
+  },
+  "combined_feed": {
+    "title": "All",
+    "description": "All personal RSS channels combined.",
+    "output": "all.xml",
+    "max_items": 300
+  }
+}

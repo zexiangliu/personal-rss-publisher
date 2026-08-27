@@ -1,0 +1,66 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<rss xmlns:content="http://purl.org/rss/1.0/modules/content/" version="2.0">
+  <channel>
+    <title>All</title>
+    <link>https://zexiangliu.github.io/personal-rss-publisher/</link>
+    <description>All personal RSS channels combined.</description>
+    <lastBuildDate>Thu, 27 Aug 2026 07:12:46 GMT</lastBuildDate>
+    <generator>personal-rss-publisher</generator>
+    <item>
+      <title>Local library adds an e-ink weekend reading shelf</title>
+      <link>https://example.com/news/eink-library-weekend</link>
+      <guid isPermaLink="false">news-2026-08-26-eink-library</guid>
+      <pubDate>Wed, 26 Aug 2026 15:00:00 GMT</pubDate>
+      <category>news</category>
+      <source url="https://example.com/news/eink-library-weekend">Example Daily</source>
+      <description>A city library pilot is making long-form reading easier by lending preloaded e-ink devices on weekends.</description>
+      <enclosure url="https://example.com/images/eink-library.jpg" length="0" type="image/jpeg"/>
+    </item>
+    <item>
+      <title>Weekly market memo: duration risk settles after rate repricing</title>
+      <link>https://example.com/investing/weekly-duration-risk</link>
+      <guid isPermaLink="false">investing-2026-08-26-rates</guid>
+      <pubDate>Wed, 26 Aug 2026 13:45:00 GMT</pubDate>
+      <category>investing</category>
+      <source url="https://example.com/investing/weekly-duration-risk">Example Markets</source>
+      <description>A compact investing memo tracking rate expectations, long-duration equities, and portfolio watch points.</description>
+    </item>
+    <item>
+      <title>城市更新：公共图书馆延长夜间开放时间</title>
+      <link>https://example.com/news/library-evening-hours-cn</link>
+      <guid isPermaLink="false">news-2026-08-26-city-update-cn</guid>
+      <pubDate>Wed, 26 Aug 2026 10:30:00 GMT</pubDate>
+      <category>news</category>
+      <source url="https://example.com/news/library-evening-hours-cn">示例新闻</source>
+      <description>这是一条中文新闻摘要，用来确认 RSS 输出可以正确处理 UTF-8、XML 转义和中文阅读场景。</description>
+    </item>
+    <item>
+      <title>Paper note: batching reading queues for slow-refresh displays</title>
+      <link>https://example.com/research/eink-reading-queues</link>
+      <guid isPermaLink="false">research-2026-08-25-paper-queue</guid>
+      <pubDate>Tue, 25 Aug 2026 21:00:00 GMT</pubDate>
+      <category>research</category>
+      <source url="https://example.com/research/eink-reading-queues">Example Lab</source>
+      <description>A short research note on grouping related papers before sending them to low-power reading devices.</description>
+      <content:encoded><![CDATA[<p>A concise note on queue design for devices where refresh cost and reading rhythm matter.</p>]]></content:encoded>
+    </item>
+    <item>
+      <title>投资观察：软件公司财报后的现金流质量</title>
+      <link>https://example.com/investing/software-cash-flow-cn</link>
+      <guid isPermaLink="false">investing-2026-08-25-cn-earnings</guid>
+      <pubDate>Tue, 25 Aug 2026 13:00:00 GMT</pubDate>
+      <category>investing</category>
+      <source url="https://example.com/investing/software-cash-flow-cn">示例投研</source>
+      <description>这是一条中文投资摘要，用来验证 investing.xml 与 all.xml 的中文兼容性。</description>
+    </item>
+    <item>
+      <title>研究摘记：中文摘要在电子墨水屏上的可读性</title>
+      <link>https://example.com/research/chinese-summary-readability</link>
+      <guid isPermaLink="false">research-2026-08-24-cn-summaries</guid>
+      <pubDate>Mon, 24 Aug 2026 01:15:00 GMT</pubDate>
+      <category>research</category>
+      <source url="https://example.com/research/chinese-summary-readability">阅读研究通讯</source>
+      <description>这条研究内容用于测试中文标题、摘要和分类在独立研究频道中的输出效果。</description>
+    </item>
+  </channel>
+</rss>

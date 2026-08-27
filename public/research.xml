@@ -1,0 +1,29 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<rss xmlns:content="http://purl.org/rss/1.0/modules/content/" version="2.0">
+  <channel>
+    <title>Research</title>
+    <link>https://zexiangliu.github.io/personal-rss-publisher/</link>
+    <description>Papers, technical notes, and research leads.</description>
+    <lastBuildDate>Thu, 27 Aug 2026 07:12:46 GMT</lastBuildDate>
+    <generator>personal-rss-publisher</generator>
+    <item>
+      <title>Paper note: batching reading queues for slow-refresh displays</title>
+      <link>https://example.com/research/eink-reading-queues</link>
+      <guid isPermaLink="false">research-2026-08-25-paper-queue</guid>
+      <pubDate>Tue, 25 Aug 2026 21:00:00 GMT</pubDate>
+      <category>research</category>
+      <source url="https://example.com/research/eink-reading-queues">Example Lab</source>
+      <description>A short research note on grouping related papers before sending them to low-power reading devices.</description>
+      <content:encoded><![CDATA[<p>A concise note on queue design for devices where refresh cost and reading rhythm matter.</p>]]></content:encoded>
+    </item>
+    <item>
+      <title>研究摘记：中文摘要在电子墨水屏上的可读性</title>
+      <link>https://example.com/research/chinese-summary-readability</link>
+      <guid isPermaLink="false">research-2026-08-24-cn-summaries</guid>
+      <pubDate>Mon, 24 Aug 2026 01:15:00 GMT</pubDate>
+      <category>research</category>
+      <source url="https://example.com/research/chinese-summary-readability">阅读研究通讯</source>
+      <description>这条研究内容用于测试中文标题、摘要和分类在独立研究频道中的输出效果。</description>
+    </item>
+  </channel>
+</rss>

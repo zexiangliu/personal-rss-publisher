@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Personal RSS</title>
+  <style>
+    :root {
+      color-scheme: light;
+      font-family: Georgia, "Times New Roman", serif;
+      background: #f7f7f2;
+      color: #171717;
+    }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+    }
+    main {
+      width: min(32rem, calc(100% - 2rem));
+      padding: 2rem 0;
+    }
+    h1 {
+      margin: 0 0 1.25rem;
+      font-size: clamp(2rem, 8vw, 3.5rem);
+      line-height: 1;
+      font-weight: 700;
+      letter-spacing: 0;
+    }
+    ul {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+      border-top: 1px solid #b8b8ad;
+    }
+    li {
+      display: flex;
+      justify-content: space-between;
+      gap: 1rem;
+      padding: 0.9rem 0;
+      border-bottom: 1px solid #b8b8ad;
+      font-size: 1.15rem;
+    }
+    a {
+      color: #004f8b;
+      font-weight: 700;
+      text-decoration-thickness: 0.08em;
+      text-underline-offset: 0.18em;
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>Personal RSS</h1>
+    <ul>
+      <li><span>News</span><a href="news.xml">RSS</a></li>
+      <li><span>Research</span><a href="research.xml">RSS</a></li>
+      <li><span>Investing</span><a href="investing.xml">RSS</a></li>
+      <li><span>All</span><a href="all.xml">RSS</a></li>
+    </ul>
+  </main>
+</body>
+</html>

@@ -1,0 +1,28 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<rss xmlns:content="http://purl.org/rss/1.0/modules/content/" version="2.0">
+  <channel>
+    <title>Investing</title>
+    <link>https://zexiangliu.github.io/personal-rss-publisher/</link>
+    <description>Market notes, filings, and investing research.</description>
+    <lastBuildDate>Thu, 27 Aug 2026 07:12:46 GMT</lastBuildDate>
+    <generator>personal-rss-publisher</generator>
+    <item>
+      <title>Weekly market memo: duration risk settles after rate repricing</title>
+      <link>https://example.com/investing/weekly-duration-risk</link>
+      <guid isPermaLink="false">investing-2026-08-26-rates</guid>
+      <pubDate>Wed, 26 Aug 2026 13:45:00 GMT</pubDate>
+      <category>investing</category>
+      <source url="https://example.com/investing/weekly-duration-risk">Example Markets</source>
+      <description>A compact investing memo tracking rate expectations, long-duration equities, and portfolio watch points.</description>
+    </item>
+    <item>
+      <title>投资观察：软件公司财报后的现金流质量</title>
+      <link>https://example.com/investing/software-cash-flow-cn</link>
+      <guid isPermaLink="false">investing-2026-08-25-cn-earnings</guid>
+      <pubDate>Tue, 25 Aug 2026 13:00:00 GMT</pubDate>
+      <category>investing</category>
+      <source url="https://example.com/investing/software-cash-flow-cn">示例投研</source>
+      <description>这是一条中文投资摘要，用来验证 investing.xml 与 all.xml 的中文兼容性。</description>
+    </item>
+  </channel>
+</rss>
