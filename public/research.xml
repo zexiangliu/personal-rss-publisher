@@ -4,8 +4,18 @@
     <title>Research</title>
     <link>https://zexiangliu.github.io/personal-rss-publisher/</link>
     <description>Papers, technical notes, and research leads.</description>
-    <lastBuildDate>Thu, 27 Aug 2026 23:04:19 GMT</lastBuildDate>
+    <lastBuildDate>Thu, 27 Aug 2026 23:04:42 GMT</lastBuildDate>
     <generator>personal-rss-publisher</generator>
+    <item>
+      <title>Skild S1：用一段视频教机器人做 10 分钟新任务</title>
+      <link>https://www.skild.ai/blogs/s1</link>
+      <guid isPermaLink="false">url:72638330f853e60323705465</guid>
+      <pubDate>Thu, 27 Aug 2026 23:04:42 GMT</pubDate>
+      <category>research</category>
+      <source url="https://www.skild.ai/blogs">Skild AI</source>
+      <description>Skild 的机器人基础模型 S1 用一段视频 prompt 就能执行从未见过、长达 10 分钟的操作任务，不用为每个新任务 fine-tune。这是当前机器人 ICL 里最值得审的实验室声明：评价应分开 in/out-of-distribution 与 short/long-horizon。</description>
+      <content:encoded><![CDATA[<p><strong>Why this matters:</strong> 这是目前最强的「机器人 in-context learning」实验室论点：用一段视频演示就能做从未见过、长达 10 分钟的任务，不再为每个新任务采集+fine-tune。</p><p>Skild 认为机器人预训练目前还停在 BERT 时代：每个新任务都要再采数据、再微调。S1 从训练日标就按 in-context learner 来做——任务只用视频演示指定，模型必须从不同场景/视角/本体的演示里学出意图、功能对应和进度。他们区分两个评价轴：任务是否在预训练分布内，以及是原子动作还是长时域组合。论点是：Generalist AI 与 RoboTTT 等并行工作大多停在短时域或 in-distribution；S1 声称能在<strong>从未见过、长达 10 分钟</strong>的任务上做 ICL。前身是 2025 年的 LocoFormer（运动中的 long-context 适应）。训练配方暂未开源，会放在系列后续文章。</p>]]></content:encoded>
+    </item>
     <item>
       <title>Gemini Robotics 2：全身控制、灵巧操作与多机协作</title>
       <link>https://deepmind.google/blog/gemini-robotics-2-brings-whole-body-intelligence-to-robots/</link>
