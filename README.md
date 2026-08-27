@@ -262,7 +262,12 @@ python discover_items.py
 python rss_aggregator.py
 ```
 
-The scheduled GitHub Action does the same thing automatically once per hour. It commits `items.discovered.jsonl`, `processed_links.txt`, and the generated `public/` feeds so recently discovered items stay available until retention removes them.
+The GitHub Action does the same thing automatically once per hour on a
+schedule, and also immediately on every push to `main` (so an agent's
+`publish_pending()` call, or a manual commit, deploys right away instead of
+waiting for the next hourly run). It commits `items.discovered.jsonl`,
+`processed_links.txt`, and the generated `public/` feeds so recently
+discovered items stay available until retention removes them.
 
 Simple filtering/ranking fields are available per source:
 
@@ -339,13 +344,16 @@ pure-recency eviction) so they don't grow forever — safe because
 `publish_pending()` runs `rss_aggregator.publish()` (which promotes as part
 of its normal pipeline, then regenerates the feeds) and commits + pushes
 `items.agent.jsonl`, `items.candidates.jsonl`, `public/`, and
-`processed_links.txt` together. Nothing reaches GitHub Pages, another
-machine, or the hourly Action until this happens — either you call it, or
-you leave it to the next scheduled run. If `push` is rejected because the
-hourly Action committed in the meantime, it fetches, rebases onto the new
-commit, re-promotes/regenerates against the merged inputs, and retries once;
-if that still fails (or the rebase itself conflicts), the tool response's
-`git` field reports it so you can resolve it by hand.
+`processed_links.txt` together. Nothing reaches GitHub Pages or another
+machine until this happens — either you call it, or you leave it to the
+next scheduled run. Pushing to `main` also triggers the Action immediately
+(see below), so in practice a `publish_pending()` call goes live within
+about a minute rather than waiting for the next hourly run. If `push` is
+rejected because a concurrent Action run committed in the meantime, it
+fetches, rebases onto the new commit, re-promotes/regenerates against the
+merged inputs, and retries once; if that still fails (or the rebase itself
+conflicts), the tool response's `git` field reports it so you can resolve
+it by hand.
 
 Run the server directly for debugging with `./run_mcp_server.sh` (after
 `./setup.sh`), which launches `mcp_server.py` with the local venv's
