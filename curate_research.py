@@ -133,11 +133,9 @@ def curate(
         candidates = dedupe_candidates(candidates)
         reviewed_for_topic: list[tuple[Review, dict[str, Any]]] = []
         for candidate in candidates:
-            if normalize_url(candidate.url) in known_urls:
-                continue
-
+            is_known = normalize_url(candidate.url) in known_urls
             review = deterministic_review(candidate, topic, defaults, feedback_records, now)
-            if should_call_agent(review, agent_config, agent_budget):
+            if not is_known and should_call_agent(review, agent_config, agent_budget):
                 agent_review = review_with_openai(candidate, topic, review, agent_config)
                 if agent_review is not None:
                     review = agent_review
@@ -158,13 +156,16 @@ def curate(
 
         max_items = int(topic.get("max_items_per_topic", defaults["max_items_per_topic"]))
         selected = [
-            item
+            (review, item)
             for review, item in reviewed_for_topic
             if review.decision == "publish"
         ][:max_items]
-        for item in selected:
-            known_urls.add(normalize_url(str(item["url"])))
-        publishable_items.extend(selected)
+        for _, item in selected:
+            url_key = normalize_url(str(item["url"]))
+            if url_key in known_urls:
+                continue
+            known_urls.add(url_key)
+            publishable_items.append(item)
 
     write_jsonl(Path(config["candidate_cache_path"]), cache_items)
     append_jsonl(output_path, publishable_items)

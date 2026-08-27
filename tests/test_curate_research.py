@@ -196,6 +196,73 @@ class ResearchCurationTests(unittest.TestCase):
             ]
             self.assertEqual(len(cached), 2)
 
+    def test_curate_does_not_backfill_lower_ranked_items_when_top_item_is_known(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            tmp_path = Path(tmp)
+            output_path = tmp_path / "items.discovered.jsonl"
+            cache_path = tmp_path / "research_candidates.jsonl"
+            output_path.write_text(
+                json.dumps(
+                    {
+                        "id": "arxiv:2608.12345",
+                        "title": "Already published",
+                        "url": "https://arxiv.org/abs/2608.12345",
+                        "category": "research",
+                    }
+                )
+                + "\n",
+                encoding="utf-8",
+            )
+            config_path = tmp_path / "research_topics.json"
+            config_path.write_text(
+                json.dumps(
+                    {
+                        "output_path": str(output_path),
+                        "candidate_cache_path": str(cache_path),
+                        "feedback_path": str(tmp_path / "feedback.jsonl"),
+                        "dedupe_against": [str(tmp_path / "items.jsonl")],
+                        "defaults": DEFAULTS,
+                        "topics": [
+                            {
+                                **SAFE_RL_TOPIC,
+                                "arxiv_query": "cat:cs.LG AND safe",
+                                "max_items_per_topic": 1,
+                            }
+                        ],
+                    }
+                ),
+                encoding="utf-8",
+            )
+            xml = arxiv_feed(
+                [
+                    arxiv_entry(
+                        "2608.12345v1",
+                        "Safe Exploration for Constrained Reinforcement Learning",
+                        (
+                            "Safe reinforcement learning for constrained "
+                            "reinforcement learning and safe exploration. "
+                        )
+                        * 8,
+                    ),
+                    arxiv_entry(
+                        "2608.54321v1",
+                        "Safe Reinforcement Learning with Practical Shields",
+                        "Safe reinforcement learning with shielding and safe exploration. "
+                        * 8,
+                    ),
+                ]
+            )
+
+            with patch("curate_research.fetch_text", return_value=xml):
+                count = curate(config_path, now=NOW, use_agent=False)
+
+            self.assertEqual(count, 0)
+            written = [
+                json.loads(line)
+                for line in output_path.read_text(encoding="utf-8").splitlines()
+            ]
+            self.assertEqual([item["id"] for item in written], ["arxiv:2608.12345"])
+
     def test_extract_response_text_reads_nested_responses_output(self):
         response = {
             "output": [
