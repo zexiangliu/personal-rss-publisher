@@ -39,3 +39,5 @@
 2026-08-27T23:04:42.090029+00:00 https://www.skild.ai/blogs/s1
 2026-08-27T23:05:02.649554+00:00 https://menlo.ai/research/from-walking-to-flipping
 2026-08-27T23:05:18.652869+00:00 https://www.pi.website/blog/pi07
+2026-08-27T23:05:36.393832+00:00 https://blogs.nvidia.com/blog/open-world-models-physical-ai/
+2026-08-27T23:05:36.394446+00:00 https://bair.berkeley.edu/blog/2026/04/20/grasp/

@@ -4,8 +4,28 @@
     <title>All</title>
     <link>https://zexiangliu.github.io/personal-rss-publisher/</link>
     <description>All personal RSS channels combined.</description>
-    <lastBuildDate>Thu, 27 Aug 2026 23:05:18 GMT</lastBuildDate>
+    <lastBuildDate>Thu, 27 Aug 2026 23:05:36 GMT</lastBuildDate>
     <generator>personal-rss-publisher</generator>
+    <item>
+      <title>GRASP：在 World Model 里做长时域梯度规划</title>
+      <link>https://bair.berkeley.edu/blog/2026/04/20/grasp/</link>
+      <guid isPermaLink="false">url:4ba77cda3e3e21dc38646aab</guid>
+      <pubDate>Thu, 27 Aug 2026 23:05:36 GMT</pubDate>
+      <category>research</category>
+      <source url="https://bair.berkeley.edu/blog/">BAIR Blog</source>
+      <description>BAIR 的 GRASP 在学习 world model 里做长时域梯度规划：轨迹抬到 virtual states 并行求导、state-space 探索、重塑 action 梯度。这是控制/机器人人看当前 world-model 浪潮时最贴近 MPC 的一篇。</description>
+      <content:encoded><![CDATA[<p><strong>Why this matters:</strong> 这篇把经典 MPC / shooting 拉到 learned world model 里，是 control 人看当前 VLA/world-model 浪潮时最应该读的 BAIR 博客。</p><p>GRASP 面向在学习动力学（world model）里做长时域规划。作者包括 Yann LeCun。三个技巧：(1) 把轨迹抬到 virtual states，让时间维度可并行求梯度；(2) 在 state iterate 上直接加随机性做探索；(3) 重塑梯度，让 action 拿到干净信号，避免高维视觉模型里脆弱的「state-input」反传。相对纯 shooting 或纯采样 planner，这是把最优控制的求梯度观点和 world model 实施实际结合的尝试。对做 MPC、model-based RL 或想用 world model 控机器人的人更有用。</p>]]></content:encoded>
+    </item>
+    <item>
+      <title>Cosmos 3：开源世界模型成为 Physical AI 底座</title>
+      <link>https://blogs.nvidia.com/blog/open-world-models-physical-ai/</link>
+      <guid isPermaLink="false">url:07e74b9f17b29d00e33225ad</guid>
+      <pubDate>Thu, 27 Aug 2026 23:05:36 GMT</pubDate>
+      <category>research</category>
+      <source url="https://blogs.nvidia.com/">NVIDIA</source>
+      <description>NVIDIA 把 Cosmos 3 定位为开源 physical AI 底座：一个模型家族同时做视觉推理、世界生成和 action prediction，Edge 4B 可跑在 Jetson Thor 上。对做机器人仿真与合成数据的人值得跟。</description>
+      <content:encoded><![CDATA[<p><strong>Why this matters:</strong> 世界模型正成为机器人 / 自动驾驶 / 视觉 AI 的共同底座。NVIDIA 把 Cosmos 3 放成开源并明确定位：理解场景、生成合成数据、预测未来状态、作为 robot policy 的 backbone。</p><p>Cosmos 3 是 mixture-of-transformers 的 omni-model：<strong>Super 64B</strong>、<strong>Nano 16B</strong>、<strong>Edge 4B</strong>（可上 Jetson Thor）。NVIDIA 声称它在 PAI-Bench、Physics-IQ image-to-video、RoboLab 等开源榜上第一，许可证是 Linux Foundation OpenMDW 1.1，允许在自有数据上 post-train。和 Omniverse / OpenUSD 搭配，用来做仿真环境与合成数据。采用方包括 Doosan、LG、Samsung、Skild。这篇更像栈定位而不是算法论文，但 Cosmos 3 是目前最值得跟的开源 physical world model。</p>]]></content:encoded>
+    </item>
     <item>
       <title>π0.7：可播控的机器人基础模型与组合泛化</title>
       <link>https://www.pi.website/blog/pi07</link>
