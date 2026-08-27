@@ -1,8 +1,15 @@
+2026-08-10T18:38:16+00:00 https://arxiv.org/abs/2608.10126
+2026-08-10T20:20:01+00:00 https://arxiv.org/abs/2608.10204
+2026-08-20T09:37:44+00:00 https://arxiv.org/abs/2608.19836
 2026-08-24T01:15:00+00:00 https://example.com/research/chinese-summary-readability
+2026-08-25T00:54:59+00:00 https://arxiv.org/abs/2608.23939
+2026-08-25T09:25:55+00:00 https://arxiv.org/abs/2608.24300
 2026-08-25T13:00:00+00:00 https://example.com/investing/software-cash-flow-cn
+2026-08-25T17:44:02+00:00 https://arxiv.org/abs/2608.24858
 2026-08-25T21:00:00+00:00 https://example.com/research/eink-reading-queues
 2026-08-26T10:30:00+00:00 https://example.com/news/library-evening-hours-cn
 2026-08-26T13:45:00+00:00 https://example.com/investing/weekly-duration-risk
+2026-08-26T13:46:43+00:00 https://arxiv.org/abs/2608.25794
 2026-08-26T15:00:00+00:00 https://example.com/news/eink-library-weekend
 2026-08-27T00:00:32+00:00 https://www.hk01.com/世界專題/60383091/數據看美國40萬億美元國債-特朗普施政連舉巨債難以-收油
 2026-08-27T01:35:51+00:00 https://www.hk01.com/即時國際/60384061/特朗普稱加拿大難打交道-是時候明白不能再佔美國便宜

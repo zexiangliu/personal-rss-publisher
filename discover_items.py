@@ -349,7 +349,10 @@ def entry_datetime(entry: Any, now: datetime) -> datetime:
 
 
 def clean_summary(value: str, max_chars: int) -> str:
-    text = BeautifulSoup(value, "html.parser").get_text(" ", strip=True)
+    if "<" in value or "&" in value:
+        text = BeautifulSoup(value, "html.parser").get_text(" ", strip=True)
+    else:
+        text = value.strip()
     if len(text) <= max_chars:
         return text
     return f"{text[: max_chars - 1].rstrip()}…"

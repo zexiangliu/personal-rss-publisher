@@ -50,8 +50,10 @@ It changes the main shape:
 .
 ├── .github/workflows/rss_aggregator.yml
 ├── config.json
+├── curate_research.py
 ├── discover_items.py
 ├── discovery_config.json
+├── feedback.py
 ├── items.discovered.jsonl
 ├── items.jsonl
 ├── processed_links.txt
@@ -62,10 +64,13 @@ It changes the main shape:
 │   ├── investing.xml
 │   └── all.xml
 ├── requirements.txt
+├── research_topics.json
 ├── rss_aggregator.py
 ├── rss_sources.json
 └── tests/
+    ├── test_curate_research.py
     ├── test_discover_items.py
+    ├── test_feedback.py
     └── test_rss_aggregator.py
 ```
 
@@ -76,6 +81,7 @@ python -m venv .venv
 source .venv/bin/activate
 pip install -r requirements.txt
 python discover_items.py
+python curate_research.py
 python rss_aggregator.py
 python -m unittest discover -s tests -v
 ```
@@ -213,11 +219,6 @@ python rss_aggregator.py
 
 The scheduled GitHub Action does the same thing automatically once per hour. It commits `items.discovered.jsonl`, `processed_links.txt`, and the generated `public/` feeds so recently discovered items stay available until retention removes them.
 
-Discovery source types currently supported:
-
-- `rss`: ordinary RSS/Atom feeds
-- `hk01_zone`: HK01 zone pages such as `https://www.hk01.com/zone/4/國際`
-
 Simple filtering/ranking fields are available per source:
 
 - `lookback_days`
@@ -227,6 +228,71 @@ Simple filtering/ranking fields are available per source:
 - `exclude_keywords`
 - `rank_keywords`
 - `min_score`
+
+Discovery source types currently supported:
+
+- `rss`: ordinary RSS/Atom feeds
+- `hk01_zone`: HK01 zone pages such as `https://www.hk01.com/zone/4/國際`
+
+## Research Curation
+
+`curate_research.py` reads `research_topics.json`, fetches paper/blog candidates,
+scores them, writes a local candidate cache to `research_candidates.jsonl`, and
+appends publishable items to `items.discovered.jsonl`.
+
+The first topics are:
+
+- Reinforcement Learning
+- Safe Reinforcement Learning
+
+Run the research curator locally:
+
+```bash
+python curate_research.py
+python rss_aggregator.py
+```
+
+Each topic can tune:
+
+| Field | Notes |
+|---|---|
+| `arxiv_query` | arXiv API query for candidate discovery |
+| `include_keywords` | at least one must match before scoring |
+| `rank_keywords` | weighted relevance keywords |
+| `publish_threshold` | minimum 0-10 score required for RSS publication |
+| `max_items_per_topic` | caps feed volume per run |
+| `rss_sources` | optional research blog RSS feeds for the same topic |
+
+To add a topic, copy one object in `research_topics.json`, change `id`, `name`,
+`arxiv_query`, and keyword lists. No Python code change is required.
+
+### Optional Agent Review
+
+The default scorer is deterministic and transparent. You can enable stricter LLM
+review by setting `defaults.agent_review.enabled` to `true` in
+`research_topics.json`, then exporting an API key:
+
+```bash
+export OPENAI_API_KEY="your_api_key_here"
+python curate_research.py --use-agent
+```
+
+If the key is missing or the API call fails, the script prints a warning and
+falls back to the rule-based score so scheduled publishing keeps working.
+
+### Feedback
+
+Use `feedback.py` to inspect recent candidates/published items and record
+lightweight preferences:
+
+```bash
+python feedback.py list --channel research --limit 20
+python feedback.py rate arxiv:2608.12345 --rating 1 --tag useful --note "Good Safe RL fit"
+python feedback.py rate https://arxiv.org/abs/2608.12345 --rating -1 --tag too-broad
+```
+
+Ratings are stored in `feedback.jsonl`. Future research runs use topic, source,
+and keyword overlap from that feedback to nudge scores up or down.
 
 ## GitHub Pages
 

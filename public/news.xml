@@ -4,7 +4,7 @@
     <title>News</title>
     <link>https://zexiangliu.github.io/personal-rss-publisher/</link>
     <description>Curated personal news items.</description>
-    <lastBuildDate>Thu, 27 Aug 2026 08:20:49 GMT</lastBuildDate>
+    <lastBuildDate>Thu, 27 Aug 2026 17:52:31 GMT</lastBuildDate>
     <generator>personal-rss-publisher</generator>
     <item>
       <title>草間彌生逝世｜從精神病患者到圓點女王　回顧藝術大師的傳奇人生</title>
@@ -175,25 +175,6 @@
       <source url="https://www.hk01.com/zone/4/%E5%9C%8B%E9%9A%9B">香港01 國際</source>
       <description>美國聯邦政府的債務總額於8月19日突破40萬億美元（約312萬億港元）大關，以全國約3.4億人口計算，平均每名美國人需承擔高達11.7萬美元（約91.7萬港</description>
       <enclosure url="https://cdn.hk01.com/di/media/images/dw/20260715/1154077211259572224037569.jpeg/BYomukscgBAXuOCNpJ1xfpVtVhGBjy9-sn5zLrJ-cy4" length="0" type="image/jpeg"/>
-    </item>
-    <item>
-      <title>Local library adds an e-ink weekend reading shelf</title>
-      <link>https://example.com/news/eink-library-weekend</link>
-      <guid isPermaLink="false">news-2026-08-26-eink-library</guid>
-      <pubDate>Wed, 26 Aug 2026 15:00:00 GMT</pubDate>
-      <category>news</category>
-      <source url="https://example.com/news/eink-library-weekend">Example Daily</source>
-      <description>A city library pilot is making long-form reading easier by lending preloaded e-ink devices on weekends.</description>
-      <enclosure url="https://example.com/images/eink-library.jpg" length="0" type="image/jpeg"/>
-    </item>
-    <item>
-      <title>城市更新：公共图书馆延长夜间开放时间</title>
-      <link>https://example.com/news/library-evening-hours-cn</link>
-      <guid isPermaLink="false">news-2026-08-26-city-update-cn</guid>
-      <pubDate>Wed, 26 Aug 2026 10:30:00 GMT</pubDate>
-      <category>news</category>
-      <source url="https://example.com/news/library-evening-hours-cn">示例新闻</source>
-      <description>这是一条中文新闻摘要，用来确认 RSS 输出可以正确处理 UTF-8、XML 转义和中文阅读场景。</description>
     </item>
   </channel>
 </rss>

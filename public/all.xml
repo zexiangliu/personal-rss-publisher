@@ -4,7 +4,7 @@
     <title>All</title>
     <link>https://zexiangliu.github.io/personal-rss-publisher/</link>
     <description>All personal RSS channels combined.</description>
-    <lastBuildDate>Thu, 27 Aug 2026 08:20:49 GMT</lastBuildDate>
+    <lastBuildDate>Thu, 27 Aug 2026 17:52:31 GMT</lastBuildDate>
     <generator>personal-rss-publisher</generator>
     <item>
       <title>草間彌生逝世｜從精神病患者到圓點女王　回顧藝術大師的傳奇人生</title>
@@ -177,14 +177,19 @@
       <enclosure url="https://cdn.hk01.com/di/media/images/dw/20260715/1154077211259572224037569.jpeg/BYomukscgBAXuOCNpJ1xfpVtVhGBjy9-sn5zLrJ-cy4" length="0" type="image/jpeg"/>
     </item>
     <item>
-      <title>Local library adds an e-ink weekend reading shelf</title>
-      <link>https://example.com/news/eink-library-weekend</link>
-      <guid isPermaLink="false">news-2026-08-26-eink-library</guid>
-      <pubDate>Wed, 26 Aug 2026 15:00:00 GMT</pubDate>
-      <category>news</category>
-      <source url="https://example.com/news/eink-library-weekend">Example Daily</source>
-      <description>A city library pilot is making long-form reading easier by lending preloaded e-ink devices on weekends.</description>
-      <enclosure url="https://example.com/images/eink-library.jpg" length="0" type="image/jpeg"/>
+      <title>Cooperative Multi-Agent Reinforcement Learning for Adaptive Aggregation in Semi-Supervised Federated Learning with non-IID Data</title>
+      <link>https://arxiv.org/abs/2608.25794</link>
+      <guid isPermaLink="false">arxiv:2608.25794</guid>
+      <pubDate>Wed, 26 Aug 2026 13:46:43 GMT</pubDate>
+      <category>research</category>
+      <source url="https://export.arxiv.org/api/query?search_query=cat%3Acs.LG+AND+%28all%3A%22reinforcement+learning%22+OR+all%3A%22policy+gradient%22+OR+all%3A%22offline+reinforcement+learning%22+OR+all%3A%22model-based+reinforcement+learning%22+OR+all%3A%22actor+critic%22%29&amp;start=0&amp;max_results=25&amp;sortBy=submittedDate&amp;sortOrder=descending">arXiv</source>
+      <description>Reinforcement Learning | score 7.8/10. Why: matches reinforcement learning, policy gradient; category cs.LG, cs.DC. Federated Learning (FL) enables distributed training of machine learning models while preserving data privacy. However, FL struggles with heterogeneous, non-IID client data distributions, resulting in sub-optimal and biased global models. In this paper, we propose pFedMARL, a novel approach leveraging Multi-Agent Reinforcement Learning (MARL) with Twin Delayed Deep Deterministic Policy Gradient (TD3) to dynamically adapt aggregation strategies in FL settings. Our method employs a server-side agent adjusting client contributions to optimize global model robustness and client-side agents balancing global and local updates to personalize models effectively without pre-training. We demonstrate superior performance of pFedMARL for training a semi-supervised audio spectrogram tr…</description>
+      <content:encoded><![CDATA[<p><strong>Topic:</strong> Reinforcement Learning</p>
+<p><strong>Score:</strong> 7.8/10</p>
+<p><strong>Why:</strong> matches reinforcement learning, policy gradient; category cs.LG, cs.DC</p>
+<p><strong>Authors:</strong> Rene Glitza, Luca Becker, Rainer Martin</p>
+<p>Federated Learning (FL) enables distributed training of machine learning models while preserving data privacy. However, FL struggles with heterogeneous, non-IID client data distributions, resulting in sub-optimal and biased global models. In this paper, we propose pFedMARL, a novel approach leveraging Multi-Agent Reinforcement Learning (MARL) with Twin Delayed Deep Deterministic Policy Gradient (TD3) to dynamically adapt aggregation strategies in FL settings. Our method employs a server-side agent adjusting client contributions to optimize global model robustness and client-side agents balancing global and local updates to personalize models effectively without pre-training. We demonstrate superior performance of pFedMARL for training a semi-supervised audio spectrogram transformer, matching or outperforming FedAvg, Ditto, and local training approaches across multiple non-IID scenarios and in the presence of adversarial clients. Our results indicate that pFedMARL actively improves accuracy, robustness, and fairness, making it suitable for real-world deployments.</p>
+<p><a href="https://arxiv.org/abs/2608.25794">Abstract</a> · <a href="https://arxiv.org/pdf/2608.25794v1">PDF</a></p>]]></content:encoded>
     </item>
     <item>
       <title>Weekly market memo: duration risk settles after rate repricing</title>
@@ -194,15 +199,6 @@
       <category>investing</category>
       <source url="https://example.com/investing/weekly-duration-risk">Example Markets</source>
       <description>A compact investing memo tracking rate expectations, long-duration equities, and portfolio watch points.</description>
-    </item>
-    <item>
-      <title>城市更新：公共图书馆延长夜间开放时间</title>
-      <link>https://example.com/news/library-evening-hours-cn</link>
-      <guid isPermaLink="false">news-2026-08-26-city-update-cn</guid>
-      <pubDate>Wed, 26 Aug 2026 10:30:00 GMT</pubDate>
-      <category>news</category>
-      <source url="https://example.com/news/library-evening-hours-cn">示例新闻</source>
-      <description>这是一条中文新闻摘要，用来确认 RSS 输出可以正确处理 UTF-8、XML 转义和中文阅读场景。</description>
     </item>
     <item>
       <title>Paper note: batching reading queues for slow-refresh displays</title>
@@ -215,6 +211,21 @@
       <content:encoded><![CDATA[<p>A concise note on queue design for devices where refresh cost and reading rhythm matter.</p>]]></content:encoded>
     </item>
     <item>
+      <title>Bellman Calibration for Marginalized Importance Weighting in Offline Reinforcement Learning</title>
+      <link>https://arxiv.org/abs/2608.24858</link>
+      <guid isPermaLink="false">arxiv:2608.24858</guid>
+      <pubDate>Tue, 25 Aug 2026 17:44:02 GMT</pubDate>
+      <category>research</category>
+      <source url="https://export.arxiv.org/api/query?search_query=cat%3Acs.LG+AND+%28all%3A%22reinforcement+learning%22+OR+all%3A%22policy+gradient%22+OR+all%3A%22offline+reinforcement+learning%22+OR+all%3A%22model-based+reinforcement+learning%22+OR+all%3A%22actor+critic%22%29&amp;start=0&amp;max_results=25&amp;sortBy=submittedDate&amp;sortOrder=descending">arXiv</source>
+      <description>Reinforcement Learning | score 8.6/10. Why: matches reinforcement learning, offline reinforcement learning; category cs.LG, stat.ML. Marginalized importance weighting evaluates a target policy by reweighting offline state-action samples with its discounted occupancy ratio, characterized by an adjoint Bellman equation. Existing minimax, primal-dual, and fitted fixed-point estimators can leave residual occupancy-balance violations because of function-class approximation, regularization, or incomplete optimization. These violations are difficult to diagnose and reduce because the objectives generally lack a direct supervised validation loss for hyperparameter tuning, model selection, and early stopping. We introduce isotonic Bellman calibration, a one-dimensional, model-agnostic post-processing method that reduces these violations while preserving the ranking information in any initial occ…</description>
+      <content:encoded><![CDATA[<p><strong>Topic:</strong> Reinforcement Learning</p>
+<p><strong>Score:</strong> 8.6/10</p>
+<p><strong>Why:</strong> matches reinforcement learning, offline reinforcement learning; category cs.LG, stat.ML</p>
+<p><strong>Authors:</strong> Lars van der Laan, Nathan Kallus</p>
+<p>Marginalized importance weighting evaluates a target policy by reweighting offline state-action samples with its discounted occupancy ratio, characterized by an adjoint Bellman equation. Existing minimax, primal-dual, and fitted fixed-point estimators can leave residual occupancy-balance violations because of function-class approximation, regularization, or incomplete optimization. These violations are difficult to diagnose and reduce because the objectives generally lack a direct supervised validation loss for hyperparameter tuning, model selection, and early stopping. We introduce isotonic Bellman calibration, a one-dimensional, model-agnostic post-processing method that reduces these violations while preserving the ranking information in any initial occupancy-ratio estimate. The method corrects the estimate&#x27;s scale and shape by applying fitted occupancy-ratio evaluation (FORE) over a one-dimensional class of nondecreasing transformations. We characterize Bellman calibration as a conditional fixed-point property equivalent to occupancy-balance against every test function of the calibrated ratio. More generally, we derive a calibration-refinement bound showing that any fitted ratio with small calibration error performs nearly as well as the best post-processing based on its fitted values. For isotonic Bellman calibration, we establish finite-sample calibration guarantees and a KL oracle inequality relative to the best monotone transformation of the initial estimate. Consequently, isotonic Bellman calibration achieves small calibration error and KL risk within statistical error of the best monotone correction, with guarantees for downstream target-occupancy functionals, including policy-value estimation.</p>
+<p><a href="https://arxiv.org/abs/2608.24858">Abstract</a> · <a href="https://arxiv.org/pdf/2608.24858v1">PDF</a></p>]]></content:encoded>
+    </item>
+    <item>
       <title>投资观察：软件公司财报后的现金流质量</title>
       <link>https://example.com/investing/software-cash-flow-cn</link>
       <guid isPermaLink="false">investing-2026-08-25-cn-earnings</guid>
@@ -224,6 +235,36 @@
       <description>这是一条中文投资摘要，用来验证 investing.xml 与 all.xml 的中文兼容性。</description>
     </item>
     <item>
+      <title>Contrastive Branch Policy Optimization</title>
+      <link>https://arxiv.org/abs/2608.24300</link>
+      <guid isPermaLink="false">arxiv:2608.24300</guid>
+      <pubDate>Tue, 25 Aug 2026 09:25:55 GMT</pubDate>
+      <category>research</category>
+      <source url="https://export.arxiv.org/api/query?search_query=cat%3Acs.LG+AND+%28all%3A%22reinforcement+learning%22+OR+all%3A%22policy+gradient%22+OR+all%3A%22offline+reinforcement+learning%22+OR+all%3A%22model-based+reinforcement+learning%22+OR+all%3A%22actor+critic%22%29&amp;start=0&amp;max_results=25&amp;sortBy=submittedDate&amp;sortOrder=descending">arXiv</source>
+      <description>Reinforcement Learning | score 7.6/10. Why: matches reinforcement learning, policy optimization; category cs.LG, cs.AI. Reinforcement learning with verifiable rewards (RLVR) enables language models to learn multi-turn interaction with external tools, yet its sparse outcome rewards provide no signal for identifying which intermediate decisions are responsible for success. Branch sampling induces local comparisons among alternative continuations, but existing methods tend to conflate two distinct problems: allocating a fixed rollout budget and translating branch outcomes into token-level credit. We introduce Contrastive Branch Policy Optimization (CBPO), which disentangles these two problems and assigns a dedicated mechanism to each. Generation entropy screens candidate branch positions across the entire response, while path-level and node-level decay distribute a fixed budget across traj…</description>
+      <content:encoded><![CDATA[<p><strong>Topic:</strong> Reinforcement Learning</p>
+<p><strong>Score:</strong> 7.6/10</p>
+<p><strong>Why:</strong> matches reinforcement learning, policy optimization; category cs.LG, cs.AI</p>
+<p><strong>Authors:</strong> Ying Wang, Changlin Qiu, Bang Lin, Linbo Jin, Wen Jiang, Zhe Sun, Jingli Yang</p>
+<p>Reinforcement learning with verifiable rewards (RLVR) enables language models to learn multi-turn interaction with external tools, yet its sparse outcome rewards provide no signal for identifying which intermediate decisions are responsible for success. Branch sampling induces local comparisons among alternative continuations, but existing methods tend to conflate two distinct problems: allocating a fixed rollout budget and translating branch outcomes into token-level credit. We introduce Contrastive Branch Policy Optimization (CBPO), which disentangles these two problems and assigns a dedicated mechanism to each. Generation entropy screens candidate branch positions across the entire response, while path-level and node-level decay distribute a fixed budget across trajectories and positions to prevent exploration from collapsing onto a few paths or adjacent tokens. A parent trajectory together with the branches that share an identical token prefix forms an exact-prefix group, and the reward variation within this controlled group defines the Contrastive Branch Value (CBV), an outcome-based estimate of local decision sensitivity that rescales continuation advantages without altering their sign. When multiple nodes are selected along the same trajectory, CBPO partitions it into non-overlapping credit segments, thereby avoiding duplicated gradients on shared tokens. Requiring only outcome rewards and no process-level annotation, CBPO provides a practical solution for fine-grained credit assignment in tool-integrated agent training. Extensive experiments on ten benchmarks, including five for mathematical reasoning and five for knowledge-intensive search, show that CBPO consistently outperforms state-of-the-art policy-optimization and branch-based methods, attaining the highest macro-average accuracy in both domains and across two model scales.</p>
+<p><a href="https://arxiv.org/abs/2608.24300">Abstract</a> · <a href="https://arxiv.org/pdf/2608.24300v1">PDF</a></p>]]></content:encoded>
+    </item>
+    <item>
+      <title>CoDrift: Compositional Drifting for Offline Reinforcement Learning</title>
+      <link>https://arxiv.org/abs/2608.23939</link>
+      <guid isPermaLink="false">arxiv:2608.23939</guid>
+      <pubDate>Tue, 25 Aug 2026 00:54:59 GMT</pubDate>
+      <category>research</category>
+      <source url="https://export.arxiv.org/api/query?search_query=cat%3Acs.LG+AND+%28all%3A%22reinforcement+learning%22+OR+all%3A%22policy+gradient%22+OR+all%3A%22offline+reinforcement+learning%22+OR+all%3A%22model-based+reinforcement+learning%22+OR+all%3A%22actor+critic%22%29&amp;start=0&amp;max_results=25&amp;sortBy=submittedDate&amp;sortOrder=descending">arXiv</source>
+      <description>Reinforcement Learning | score 8.6/10. Why: matches reinforcement learning, offline reinforcement learning; category cs.LG, cs.RO. Offline reinforcement learning is intrinsically multi-objective: a policy must remain compatible with the behavioral support of a fixed dataset while preferentially selecting high-value actions. We recast these objectives in a common form by viewing each as an action-space motion field that specifies how generated actions should move. This perspective enables heterogeneous learning objectives to be combined directly through field composition. Inspired by drifting models, we propose CoDrift, a compositional framework for one-step generative policy learning. CoDrift combines three objective-level fields into a unified policy field. The conditional field preserves state-dependent behavioral structure, while the marginal field pools actions across states to prov…</description>
+      <content:encoded><![CDATA[<p><strong>Topic:</strong> Reinforcement Learning</p>
+<p><strong>Score:</strong> 8.6/10</p>
+<p><strong>Why:</strong> matches reinforcement learning, offline reinforcement learning; category cs.LG, cs.RO</p>
+<p><strong>Authors:</strong> Xiewei Ni, Ruofeng Mei, Xiangyu Xu</p>
+<p>Offline reinforcement learning is intrinsically multi-objective: a policy must remain compatible with the behavioral support of a fixed dataset while preferentially selecting high-value actions. We recast these objectives in a common form by viewing each as an action-space motion field that specifies how generated actions should move. This perspective enables heterogeneous learning objectives to be combined directly through field composition. Inspired by drifting models, we propose CoDrift, a compositional framework for one-step generative policy learning. CoDrift combines three objective-level fields into a unified policy field. The conditional field preserves state-dependent behavioral structure, while the marginal field pools actions across states to provide a more stable generative signal in the single-positive-sample regime of continuous-control offline RL. The value field moves generated actions toward higher-value regions. The composed field is absorbed into a stochastic generator that produces an action with a single forward pass at deployment. We evaluate CoDrift on 73 tasks from OGBench and D4RL in both offline and offline-to-online settings. CoDrift compares favorably with state-of-the-art methods and achieves the best average rank in both settings.</p>
+<p><a href="https://arxiv.org/abs/2608.23939">Abstract</a> · <a href="https://arxiv.org/pdf/2608.23939v1">PDF</a></p>]]></content:encoded>
+    </item>
+    <item>
       <title>研究摘记：中文摘要在电子墨水屏上的可读性</title>
       <link>https://example.com/research/chinese-summary-readability</link>
       <guid isPermaLink="false">research-2026-08-24-cn-summaries</guid>
@@ -231,6 +272,51 @@
       <category>research</category>
       <source url="https://example.com/research/chinese-summary-readability">阅读研究通讯</source>
       <description>这条研究内容用于测试中文标题、摘要和分类在独立研究频道中的输出效果。</description>
+    </item>
+    <item>
+      <title>Adaptive Probabilistic Shielding by Learning MDPs for Safe Reinforcement Learning</title>
+      <link>https://arxiv.org/abs/2608.19836</link>
+      <guid isPermaLink="false">arxiv:2608.19836</guid>
+      <pubDate>Thu, 20 Aug 2026 09:37:44 GMT</pubDate>
+      <category>research</category>
+      <source url="https://export.arxiv.org/api/query?search_query=cat%3Acs.LG+AND+%28all%3A%22safe+reinforcement+learning%22+OR+all%3A%22constrained+reinforcement+learning%22+OR+all%3A%22constrained+Markov+decision+process%22+OR+all%3A%22risk-sensitive+reinforcement+learning%22+OR+all%3A%22safe+exploration%22+OR+all%3A%22reward+hacking%22+OR+all%3A%22RLHF%22%29&amp;start=0&amp;max_results=25&amp;sortBy=submittedDate&amp;sortOrder=descending">arXiv</source>
+      <description>Safe Reinforcement Learning | score 8.0/10. Why: matches safe reinforcement learning, shielding; category cs.LG, cs.AI. Probabilistic shielding is a technique for safe reinforcement learning (RL). Typically, a static observer -- called the shield -- constrains the learning agent's actions to those for which acting safely remains feasible. Traditionally, the shield is computed from the transition probabilities of the underlying Markov decision process (MDP). Thus, this technique is not applicable when the MDP model is not given a priori, which, unfortunately, is the case in typical RL applications. In this paper, we study the problem of computing a shield in the setting where the transition graph of the MDP is known, but the transition probabilities are unknown. Our approach integrates probabilistic shielding with online model learning: as the RL agent explores the environment, we estima…</description>
+      <content:encoded><![CDATA[<p><strong>Topic:</strong> Safe Reinforcement Learning</p>
+<p><strong>Score:</strong> 8.0/10</p>
+<p><strong>Why:</strong> matches safe reinforcement learning, shielding; category cs.LG, cs.AI</p>
+<p><strong>Authors:</strong> Astrid Horn Brorholt, Maris F. L. Galesloot, Nils Jansen, Kim Guldstrand Larsen, Christian Schilling</p>
+<p>Probabilistic shielding is a technique for safe reinforcement learning (RL). Typically, a static observer -- called the shield -- constrains the learning agent&#x27;s actions to those for which acting safely remains feasible. Traditionally, the shield is computed from the transition probabilities of the underlying Markov decision process (MDP). Thus, this technique is not applicable when the MDP model is not given a priori, which, unfortunately, is the case in typical RL applications. In this paper, we study the problem of computing a shield in the setting where the transition graph of the MDP is known, but the transition probabilities are unknown. Our approach integrates probabilistic shielding with online model learning: as the RL agent explores the environment, we estimate the transition probabilities. From this estimate, we compute a shield. While the shield may be conservative initially, it adapts as the model estimate becomes more precise. Thus, the shield improves in tandem with the RL agent. This paradigm of adaptive probabilistic shielding raises a number of challenges, such as when to recompute the shield and how to balance between exploration and safety during learning. We empirically evaluate multiple variants of this paradigm across several environments.</p>
+<p><a href="https://arxiv.org/abs/2608.19836">Abstract</a> · <a href="https://arxiv.org/pdf/2608.19836v1">PDF</a></p>]]></content:encoded>
+    </item>
+    <item>
+      <title>Boundary-Seeking Policy Gradient for Safe Reinforcement Learning</title>
+      <link>https://arxiv.org/abs/2608.10204</link>
+      <guid isPermaLink="false">arxiv:2608.10204</guid>
+      <pubDate>Mon, 10 Aug 2026 20:20:01 GMT</pubDate>
+      <category>research</category>
+      <source url="https://export.arxiv.org/api/query?search_query=cat%3Acs.LG+AND+%28all%3A%22safe+reinforcement+learning%22+OR+all%3A%22constrained+reinforcement+learning%22+OR+all%3A%22constrained+Markov+decision+process%22+OR+all%3A%22risk-sensitive+reinforcement+learning%22+OR+all%3A%22safe+exploration%22+OR+all%3A%22reward+hacking%22+OR+all%3A%22RLHF%22%29&amp;start=0&amp;max_results=25&amp;sortBy=submittedDate&amp;sortOrder=descending">arXiv</source>
+      <description>Safe Reinforcement Learning | score 8.1/10. Why: matches safe reinforcement learning, constrained markov decision process; category cs.LG. Safe reinforcement learning maximizes reward subject to safety constraints. For Constrained Markov Decision Processes, the linear-programming view over occupancy measures implies that whenever the constraint is active at optimality, the optimal policy lies exactly on the constraint boundary, yet standard gradient-based methods do not exploit this structure and often settle in the feasible interior. We introduce Boundary-Seeking Policy Gradient (BSPG), a first-order method whose update combines a tangential component that improves reward while preserving cost to first order with a signed, residual-driven normal component that regulates the policy toward the active boundary from either side; the combined direction admits an algebraic Lagrangian form wi…</description>
+      <content:encoded><![CDATA[<p><strong>Topic:</strong> Safe Reinforcement Learning</p>
+<p><strong>Score:</strong> 8.1/10</p>
+<p><strong>Why:</strong> matches safe reinforcement learning, constrained markov decision process; category cs.LG</p>
+<p><strong>Authors:</strong> Chenhua Fan, Jiahui Zhu, Yuhang Zhang, Honghao Wei</p>
+<p>Safe reinforcement learning maximizes reward subject to safety constraints. For Constrained Markov Decision Processes, the linear-programming view over occupancy measures implies that whenever the constraint is active at optimality, the optimal policy lies exactly on the constraint boundary, yet standard gradient-based methods do not exploit this structure and often settle in the feasible interior. We introduce Boundary-Seeking Policy Gradient (BSPG), a first-order method whose update combines a tangential component that improves reward while preserving cost to first order with a signed, residual-driven normal component that regulates the policy toward the active boundary from either side; the combined direction admits an algebraic Lagrangian form with an induced coefficient and no learned dual variable. Under exact gradients and stated regularity conditions, the constraint residual converges to zero from either side with a finite-horizon $O(1/\sqrt{T})$ bound, the tangential component is a reward-ascent direction on the boundary, and any convergent parameter sequence is stationary on the active constraint set, satisfying the KKT conditions when the limit is also a local maximizer over the feasible set. This complements existing analyses, which certify feasibility but do not characterize the constraint value at convergence. On a standard Safety-Gymnasium navigation task, BSPG attains higher reward while tracking the boundary more tightly than the compared baselines.</p>
+<p><a href="https://arxiv.org/abs/2608.10204">Abstract</a> · <a href="https://arxiv.org/pdf/2608.10204v1">PDF</a></p>]]></content:encoded>
+    </item>
+    <item>
+      <title>Procedural Fairness Failures in RLHF from Preference Averaging</title>
+      <link>https://arxiv.org/abs/2608.10126</link>
+      <guid isPermaLink="false">arxiv:2608.10126</guid>
+      <pubDate>Mon, 10 Aug 2026 18:38:16 GMT</pubDate>
+      <category>research</category>
+      <source url="https://export.arxiv.org/api/query?search_query=cat%3Acs.LG+AND+%28all%3A%22safe+reinforcement+learning%22+OR+all%3A%22constrained+reinforcement+learning%22+OR+all%3A%22constrained+Markov+decision+process%22+OR+all%3A%22risk-sensitive+reinforcement+learning%22+OR+all%3A%22safe+exploration%22+OR+all%3A%22reward+hacking%22+OR+all%3A%22RLHF%22%29&amp;start=0&amp;max_results=25&amp;sortBy=submittedDate&amp;sortOrder=descending">arXiv</source>
+      <description>Safe Reinforcement Learning | score 7.2/10. Why: matches human feedback, rlhf, alignment; category cs.LG, cs.AI. Reinforcement Learning from Human Feedback (RLHF) aggregates heterogeneous preferences into a single reward model, assuming preference homogeneity. When preferences are heterogeneous, this aggregation induces a procedural fairness failure where majority preference groups dominate reward learning while minority preferences are systematically under-represented. This work defines procedural fairness in alignment as preserving distinct preference signals during reward modeling and shows that standard RLHF violates this via preference averaging. Preference-Aware RLHF (PA-RLHF) is introduced, separating optimization across preference modes at the reward learning stage. In a controlled setting, PA-RLHF improves overall alignment accuracy from 46.9% to 67.9% and reduces the fairness…</description>
+      <content:encoded><![CDATA[<p><strong>Topic:</strong> Safe Reinforcement Learning</p>
+<p><strong>Score:</strong> 7.2/10</p>
+<p><strong>Why:</strong> matches human feedback, rlhf, alignment; category cs.LG, cs.AI</p>
+<p><strong>Authors:</strong> M P V S Gopinadh, Karthik Kamuju, Kummari Avinash, John Joshua, Srinivasa Raju Rudraraju</p>
+<p>Reinforcement Learning from Human Feedback (RLHF) aggregates heterogeneous preferences into a single reward model, assuming preference homogeneity. When preferences are heterogeneous, this aggregation induces a procedural fairness failure where majority preference groups dominate reward learning while minority preferences are systematically under-represented. This work defines procedural fairness in alignment as preserving distinct preference signals during reward modeling and shows that standard RLHF violates this via preference averaging. Preference-Aware RLHF (PA-RLHF) is introduced, separating optimization across preference modes at the reward learning stage. In a controlled setting, PA-RLHF improves overall alignment accuracy from 46.9% to 67.9% and reduces the fairness gap between best and worst aligned groups from 15.9 to 9.6 percentage points. These results show that procedural fairness failures in alignment can arise from structural design choices in reward learning, even in controlled, noise-free settings, with direct implications for large language models and agentic systems, where biased reward models can compound inequities across sequential decisions.</p>
+<p><a href="https://arxiv.org/abs/2608.10126">Abstract</a> · <a href="https://arxiv.org/pdf/2608.10126v1">PDF</a></p>]]></content:encoded>
     </item>
   </channel>
 </rss>

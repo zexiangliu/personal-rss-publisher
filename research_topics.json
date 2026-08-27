@@ -1,0 +1,94 @@
+{
+  "output_path": "items.discovered.jsonl",
+  "candidate_cache_path": "research_candidates.jsonl",
+  "feedback_path": "feedback.jsonl",
+  "dedupe_against": [
+    "items.jsonl",
+    "items.discovered.jsonl"
+  ],
+  "defaults": {
+    "enabled": true,
+    "category": "research",
+    "lookback_days": 45,
+    "max_candidates_per_topic": 25,
+    "max_items_per_topic": 4,
+    "summary_max_chars": 900,
+    "publish_threshold": 6.8,
+    "preferred_categories": [
+      "cs.LG",
+      "cs.AI",
+      "stat.ML"
+    ],
+    "agent_review": {
+      "enabled": false,
+      "model": "gpt-5-mini",
+      "max_items_per_run": 8,
+      "min_deterministic_score": 5.5,
+      "timeout_seconds": 45
+    }
+  },
+  "topics": [
+    {
+      "id": "reinforcement-learning",
+      "name": "Reinforcement Learning",
+      "arxiv_query": "cat:cs.LG AND (all:\"reinforcement learning\" OR all:\"policy gradient\" OR all:\"offline reinforcement learning\" OR all:\"model-based reinforcement learning\" OR all:\"actor critic\")",
+      "include_keywords": [
+        "reinforcement learning",
+        "policy gradient",
+        "policy optimization",
+        "offline reinforcement learning",
+        "model-based reinforcement learning",
+        "actor critic",
+        "q-learning",
+        "markov decision process"
+      ],
+      "rank_keywords": {
+        "reinforcement learning": 2.6,
+        "offline reinforcement learning": 2.3,
+        "model-based reinforcement learning": 2.1,
+        "policy optimization": 1.8,
+        "policy gradient": 1.8,
+        "actor critic": 1.5,
+        "q-learning": 1.3,
+        "markov decision process": 1.2,
+        "sample efficiency": 1.0,
+        "generalization": 0.9
+      }
+    },
+    {
+      "id": "safe-reinforcement-learning",
+      "name": "Safe Reinforcement Learning",
+      "arxiv_query": "cat:cs.LG AND (all:\"safe reinforcement learning\" OR all:\"constrained reinforcement learning\" OR all:\"constrained Markov decision process\" OR all:\"risk-sensitive reinforcement learning\" OR all:\"safe exploration\" OR all:\"reward hacking\" OR all:\"RLHF\")",
+      "publish_threshold": 7.0,
+      "max_items_per_topic": 5,
+      "include_keywords": [
+        "safe reinforcement learning",
+        "constrained reinforcement learning",
+        "constrained markov decision process",
+        "risk-sensitive reinforcement learning",
+        "safe exploration",
+        "reward hacking",
+        "rlhf",
+        "human feedback",
+        "policy safety",
+        "safety"
+      ],
+      "rank_keywords": {
+        "safe reinforcement learning": 3.2,
+        "constrained reinforcement learning": 2.8,
+        "constrained markov decision process": 2.6,
+        "safe exploration": 2.4,
+        "risk-sensitive reinforcement learning": 2.2,
+        "reward hacking": 2.0,
+        "policy safety": 1.9,
+        "human feedback": 1.8,
+        "rlhf": 1.8,
+        "robustness": 1.2,
+        "constraint satisfaction": 1.2,
+        "shielding": 1.1,
+        "verification": 1.0,
+        "alignment": 0.9
+      }
+    }
+  ]
+}
