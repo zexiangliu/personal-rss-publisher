@@ -19,7 +19,7 @@
   },
   "agent_publish": {
     "output_path": "items.agent.jsonl",
-    "default_daily_quota": 3,
+    "default_daily_quota": 6,
     "daily_quota_by_topic": {}
   },
   "feeds": {

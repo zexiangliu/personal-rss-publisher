@@ -181,6 +181,13 @@ Each channel can use:
 
 `all.xml` is built from the items that remain in the configured channel feeds, then applies its own optional `max_items` or `retention_days`.
 
+When `max_items` has to drop items, it doesn't just drop the oldest ones: it
+ranks by each item's optional `score` field first (see
+[Agent Publishing (MCP)](#agent-publishing-mcp)) and recency second, so a
+highly-scored older item survives over a newer item nobody rated. Items
+without a `score` default to `0.0`, so a feed nobody ever scores behaves
+exactly as before — pure newest-first truncation.
+
 ## Deduplication And `processed_links.txt`
 
 The publisher normalizes URLs and keeps only one item per URL in the generated output.
@@ -191,7 +198,16 @@ The publisher normalizes URLs and keeps only one item per URL in the generated o
 2026-08-26T15:00:00+00:00 https://example.com/article
 ```
 
-In this Phase 1 fork, `items.jsonl` remains the source of truth, so the ledger does not hide existing structured items on later runs. It records what has been published and is isolated behind a small `ProcessedLinkStore` class so it can later be replaced by SQLite without changing RSS generation.
+It's the **permanent** dedup memory, separate from the `item_inputs` files
+that hold current feed content: `discover_items.py` and `mcp_server.py`'s
+`check_duplicate`/`publish_item` all consult it (via `processed_link_urls()`
+in `rss_aggregator.py`) in addition to `items.jsonl`/`items.discovered.jsonl`/
+`items.agent.jsonl`, so a URL is remembered as "already published" even after
+it ages out of every feed's retention window or is pruned from those files.
+This is what makes it safe to trim the ever-growing `items.*.jsonl` files
+later without the same article getting rediscovered or republished. It's
+isolated behind a small `ProcessedLinkStore` class so it can later be
+replaced by SQLite without changing RSS generation.
 
 ## Optional External RSS Sources
 
@@ -274,23 +290,35 @@ API key of its own:
 | `list_topics()` | Lists configured feeds; any other topic name also works |
 | `check_duplicate(url)` | Checks whether a URL is already published anywhere |
 | `list_recent(topic, limit)` | Lists recently published items for context |
-| `publish_item(topic, title, url, ...)` | Publishes one item, enforcing dedup and quota |
+| `publish_item(topic, title, url, ..., score=0.0)` | Publishes one item, enforcing dedup and quota |
 
 The agent is responsible for finding and judging candidates (it can use its
 own search/fetch tools); this server is only responsible for what the repo
 must own reliably:
 
 - **Dedup** — `publish_item` rejects a URL that's already in any configured
-  `item_inputs` file, reusing the same `normalize_url`/`load_known_urls`
-  logic as the rest of the pipeline.
+  `item_inputs` file *or* in `processed_links.txt`'s permanent ledger (see
+  [Deduplication](#deduplication-and-processed_linkstxt)), reusing the same
+  `normalize_url`/`load_known_urls`/`processed_link_urls` logic as the rest
+  of the pipeline.
 - **Lifespan** — published items land in `items.agent.jsonl`, which
   `rss_aggregator.py` reads like any other item input, so per-feed
-  `retention_hours`/`retention_days`/`max_items` still apply.
+  `retention_hours`/`retention_days`/`max_items` still apply. `items.agent.jsonl`
+  itself is never pruned automatically — the agent can write to it freely;
+  it's each feed's `max_items` cap that decides what's actually visible in
+  the XML at any given time (see `score` below for how that cap chooses).
 - **Quota** — each topic has a daily publish quota (`config.json`'s
-  `agent_publish.default_daily_quota`, overridable per topic in
+  `agent_publish.default_daily_quota`, default `6`, overridable per topic in
   `daily_quota_by_topic`) so an agent that found 100 good candidates can
-  still only push a few per day; the rest wait for tomorrow's quota or a
-  higher configured limit.
+  still only push a handful per day; the rest wait for tomorrow's quota or a
+  higher configured limit. This paces what lands in your reader — it's
+  independent of dedup and of the `max_items` cap below.
+- **Score** — `publish_item`'s optional `score` argument is any
+  importance/interest rating you want the agent to use (pick a scale, e.g.
+  0-10, and stay consistent within a topic). When a feed's `max_items` cap
+  has to drop items, higher-scored ones survive over lower-scored ones
+  regardless of recency — see [Retention](#retention). Leave it at the
+  default `0.0` for plain recency-based behavior.
 
 Topics are free-form: publishing to a topic that isn't in `config.json`'s
 `feeds` still works — it gets `default_feed`'s retention policy and a

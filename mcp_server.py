@@ -24,7 +24,13 @@ from typing import Any
 from mcp.server.mcpserver import MCPServer
 
 from discover_items import append_jsonl, load_known_urls
-from rss_aggregator import DEFAULT_CONFIG_PATH, load_config, normalize_url, stable_guid
+from rss_aggregator import (
+    DEFAULT_CONFIG_PATH,
+    load_config,
+    normalize_url,
+    processed_link_urls,
+    stable_guid,
+)
 from rss_aggregator import publish as rss_publish
 
 REPO_DIR = Path(__file__).resolve().parent
@@ -175,6 +181,9 @@ def check_duplicate_core(url: str, config: dict[str, Any]) -> dict[str, Any]:
     for path in known_url_paths(config):
         if path.exists() and normalized in load_known_urls([path]):
             return {"duplicate": True, "found_in": str(path)}
+    processed_path = Path(config["processed_links"])
+    if processed_path.exists() and normalized in processed_link_urls(processed_path):
+        return {"duplicate": True, "found_in": str(processed_path)}
     return {"duplicate": False, "found_in": ""}
 
 
@@ -210,6 +219,7 @@ def publish_item_core(
     source_url: str = "",
     image_url: str = "",
     content_html: str = "",
+    score: float = 0.0,
     *,
     config: dict[str, Any],
     now: datetime,
@@ -224,6 +234,9 @@ def publish_item_core(
     for path in known_url_paths(config):
         if path.exists():
             known |= load_known_urls([path])
+    processed_path = Path(config["processed_links"])
+    if processed_path.exists():
+        known |= processed_link_urls(processed_path)
     if normalize_url(url) in known:
         return PublishResult(status="duplicate", message=f"{url} is already published.", topic=topic)
 
@@ -251,6 +264,7 @@ def publish_item_core(
         "published_at": now.astimezone(timezone.utc).isoformat(),
         "image_url": image_url.strip(),
         "content_html": content_html.strip(),
+        "score": float(score),
     }
     append_jsonl(agent_path, [item])
 
@@ -298,14 +312,20 @@ def publish_item(
     source_url: str = "",
     image_url: str = "",
     content_html: str = "",
+    score: float = 0.0,
 ) -> dict[str, Any]:
     """Publish one item to a topic feed. Enforces URL dedup across every
     configured item input and a per-topic daily publish quota (see
     config.json's agent_publish.default_daily_quota) -- call check_duplicate
     or list_recent first so quota isn't spent on items already published.
-    On success this also regenerates the RSS feeds and commits + pushes them
-    (plus the new item) to the repo's git remote, so GitHub Pages picks it
-    up on the next deploy."""
+    `score` is an optional importance/interest rating (any scale you like,
+    e.g. 0-10 -- just be consistent within a topic): when a feed's max_items
+    cap forces items out, higher-scored items are kept over lower-scored
+    ones regardless of recency, so you can publish generously and let the
+    cap surface the best ones. Items left at the default 0.0 score keep the
+    old recency-only behavior. On success this also regenerates the RSS
+    feeds and commits + pushes them (plus the new item) to the repo's git
+    remote, so GitHub Pages picks it up on the next deploy."""
     config = current_config()
     result = publish_item_core(
         topic,
@@ -316,6 +336,7 @@ def publish_item(
         source_url,
         image_url,
         content_html,
+        score,
         config=config,
         now=datetime.now(timezone.utc),
     )

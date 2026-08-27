@@ -158,6 +158,67 @@ class DiscoverItemsTests(unittest.TestCase):
             self.assertEqual(len(written), 1)
             self.assertEqual(written[0]["id"], "hk01:456")
 
+    def test_skips_urls_recorded_only_in_the_processed_links_ledger(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            tmp_path = Path(tmp)
+            output_path = tmp_path / "items.discovered.jsonl"
+            processed_links_path = tmp_path / "processed_links.txt"
+            # This URL isn't in any dedupe_against file (e.g. it aged out of
+            # items.discovered.jsonl already), only in the permanent ledger.
+            processed_links_path.write_text(
+                "2026-08-20T00:00:00+00:00 https://www.hk01.com/即時國際/456/example\n",
+                encoding="utf-8",
+            )
+            config_path = tmp_path / "discovery_config.json"
+            config_path.write_text(
+                json.dumps(
+                    {
+                        "output_path": str(output_path),
+                        "dedupe_against": [],
+                        "processed_links": str(processed_links_path),
+                        "defaults": {
+                            "enabled": False,
+                            "lookback_days": 7,
+                            "max_items_per_source": 20,
+                            "summary_max_chars": 600,
+                            "min_score": 0,
+                            "include_keywords": [],
+                            "exclude_keywords": [],
+                            "rank_keywords": {},
+                        },
+                        "sources": [
+                            {
+                                "enabled": True,
+                                "type": "hk01_zone",
+                                "name": "香港01 國際",
+                                "url": "https://www.hk01.com/zone/4/%E5%9C%8B%E9%9A%9B",
+                                "category": "news",
+                            }
+                        ],
+                    },
+                    ensure_ascii=False,
+                ),
+                encoding="utf-8",
+            )
+            payload = {
+                "items": [
+                    {
+                        "data": {
+                            "articleId": 456,
+                            "title": "Previously published",
+                            "canonicalUrl": "https://www.hk01.com/即時國際/456/example",
+                            "description": "Fresh summary",
+                            "publishTime": int(NOW.timestamp()),
+                        }
+                    }
+                ]
+            }
+
+            with patch("discover_items.fetch_json", return_value=payload):
+                count = discover(config_path, now=NOW)
+
+            self.assertEqual(count, 0)
+
 
 if __name__ == "__main__":
     unittest.main()

@@ -40,6 +40,7 @@ class NormalizedItem:
     summary: str = ""
     image_url: str = ""
     content_html: str = ""
+    score: float = 0.0
 
     @property
     def normalized_url(self) -> str:
@@ -170,6 +171,7 @@ def normalize_item(raw: dict[str, Any], now: datetime) -> NormalizedItem:
         published_at=parse_datetime(raw.get("published_at"), fallback=now),
         image_url=str(raw.get("image_url", "")).strip(),
         content_html=str(raw.get("content_html", "")).strip(),
+        score=float(raw.get("score") or 0),
     )
 
 
@@ -307,16 +309,25 @@ def route_items(
 def apply_retention(
     items: list[NormalizedItem], policy: dict[str, Any], now: datetime
 ) -> list[NormalizedItem]:
-    retained = sort_items(items)
+    retained = items
     retention_delta = retention_window(policy)
     if retention_delta is not None:
         cutoff = now - retention_delta
         retained = [item for item in retained if item.published_at >= cutoff]
 
     max_items = policy.get("max_items")
-    if max_items is not None:
-        retained = retained[: int(max_items)]
-    return retained
+    if max_items is not None and len(retained) > int(max_items):
+        retained = rank_items(retained)[: int(max_items)]
+    return sort_items(retained)
+
+
+def rank_items(items: list[NormalizedItem]) -> list[NormalizedItem]:
+    """Order items by score first (an optional agent-assigned importance/
+    interest rating; unscored items default to 0.0), recency as tiebreak.
+    Only used to decide which items survive a max_items cap -- items are
+    always re-sorted back into reverse-chronological order for output, so
+    unscored feeds (score always 0.0) behave exactly as before."""
+    return sorted(items, key=lambda item: (item.score, item.published_at, item.title), reverse=True)
 
 
 def retention_window(policy: dict[str, Any]) -> timedelta | None:
@@ -564,6 +575,16 @@ class ProcessedLinkStore:
         with self.path.open("w", encoding="utf-8") as f:
             for seen_at, url in rows:
                 f.write(f"{seen_at.astimezone(timezone.utc).isoformat()} {url}\n")
+
+
+def processed_link_urls(path: Path) -> set[str]:
+    """Normalized URLs recorded in a processed_links.txt-style ledger. This
+    is the permanent dedup memory: unlike item_inputs files, it's meant to be
+    consulted even after an item has aged out of (or been pruned from) the
+    files that produced it."""
+    store = ProcessedLinkStore(path)
+    store.load()
+    return set(store.links.keys())
 
 
 def publish(config_path: Path, fetch_rss: bool = True, now: datetime | None = None) -> dict[str, int]:

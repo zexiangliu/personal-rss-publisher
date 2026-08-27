@@ -43,6 +43,7 @@ def base_config(tmp_path: Path) -> dict:
             str(tmp_path / "items.jsonl"),
             str(tmp_path / "items.agent.jsonl"),
         ],
+        "processed_links": str(tmp_path / "processed_links.txt"),
         "feeds": {
             "news": {"title": "News", "retention_hours": 24},
             "research": {"title": "Research", "max_items": 100},
@@ -101,6 +102,45 @@ class PublishItemCoreTests(unittest.TestCase):
 
             self.assertEqual(result.status, "duplicate")
             self.assertFalse((tmp_path / "items.agent.jsonl").exists())
+
+    def test_duplicate_url_recorded_only_in_the_processed_links_ledger_is_rejected(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            tmp_path = Path(tmp)
+            config = base_config(tmp_path)
+            # Not in any items.*.jsonl (e.g. it aged out already) -- only in
+            # the permanent ledger.
+            Path(config["processed_links"]).write_text(
+                "2026-08-20T00:00:00+00:00 https://example.com/research/old-paper\n",
+                encoding="utf-8",
+            )
+
+            result = publish_item_core(
+                "research",
+                "Old paper again",
+                "https://example.com/research/old-paper",
+                config=config,
+                now=NOW,
+            )
+
+            self.assertEqual(result.status, "duplicate")
+            self.assertFalse((tmp_path / "items.agent.jsonl").exists())
+
+    def test_score_is_recorded_on_the_published_item(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            tmp_path = Path(tmp)
+            config = base_config(tmp_path)
+
+            publish_item_core(
+                "research",
+                "Important paper",
+                "https://example.com/research/important",
+                score=8.5,
+                config=config,
+                now=NOW,
+            )
+
+            written = json.loads((tmp_path / "items.agent.jsonl").read_text(encoding="utf-8"))
+            self.assertEqual(written["score"], 8.5)
 
     def test_daily_quota_blocks_the_next_publish(self):
         with tempfile.TemporaryDirectory() as tmp:
@@ -178,6 +218,20 @@ class HelperTests(unittest.TestCase):
         self.assertTrue(found["duplicate"])
         self.assertTrue(found["found_in"].endswith("items.jsonl"))
         self.assertFalse(missing["duplicate"])
+
+    def test_check_duplicate_finds_urls_recorded_only_in_the_ledger(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            tmp_path = Path(tmp)
+            config = base_config(tmp_path)
+            Path(config["processed_links"]).write_text(
+                "2026-08-20T00:00:00+00:00 https://example.com/aged-out\n",
+                encoding="utf-8",
+            )
+
+            found = check_duplicate_core("https://example.com/aged-out", config)
+
+        self.assertTrue(found["duplicate"])
+        self.assertTrue(found["found_in"].endswith("processed_links.txt"))
 
     def test_list_recent_filters_by_topic_and_sorts_newest_first(self):
         with tempfile.TemporaryDirectory() as tmp:

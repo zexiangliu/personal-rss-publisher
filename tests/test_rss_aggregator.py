@@ -8,6 +8,7 @@ from xml.etree import ElementTree
 from rss_aggregator import (
     dedupe_items,
     load_structured_items,
+    processed_link_urls,
     publish,
     route_items,
     stable_guid,
@@ -44,6 +45,113 @@ class RssPublisherTests(unittest.TestCase):
         self.assertEqual(len(items), 1)
         self.assertEqual(items[0].category, "research")
         self.assertEqual(items[0].id, stable_guid("https://example.com/article"))
+
+    def test_score_defaults_to_zero_and_parses_when_present(self):
+        items = load_items_for_test(
+            [
+                {
+                    "id": "unscored",
+                    "title": "Unscored",
+                    "url": "https://example.com/unscored",
+                    "category": "research",
+                    "published_at": "2026-08-26T00:00:00Z",
+                },
+                {
+                    "id": "scored",
+                    "title": "Scored",
+                    "url": "https://example.com/scored",
+                    "category": "research",
+                    "published_at": "2026-08-26T00:00:00Z",
+                    "score": 7.5,
+                },
+            ]
+        )
+        by_id = {item.id: item for item in items}
+        self.assertEqual(by_id["unscored"].score, 0.0)
+        self.assertEqual(by_id["scored"].score, 7.5)
+
+    def test_max_items_keeps_higher_score_over_a_newer_lower_score_item(self):
+        items = load_items_for_test(
+            [
+                {
+                    "id": "old-important",
+                    "title": "Old important",
+                    "url": "https://example.com/old-important",
+                    "category": "research",
+                    "published_at": "2026-08-01T00:00:00Z",
+                    "score": 9.0,
+                },
+                {
+                    "id": "new-minor",
+                    "title": "New minor",
+                    "url": "https://example.com/new-minor",
+                    "category": "research",
+                    "published_at": "2026-08-27T00:00:00Z",
+                    "score": 1.0,
+                },
+                {
+                    "id": "newest-minor",
+                    "title": "Newest minor",
+                    "url": "https://example.com/newest-minor",
+                    "category": "research",
+                    "published_at": "2026-08-27T06:00:00Z",
+                    "score": 0.5,
+                },
+            ]
+        )
+        config = {
+            "feeds": {"research": {"max_items": 2}},
+            "combined_feed": {"max_items": 300},
+        }
+
+        feeds, _ = route_items(dedupe_items(items), config, NOW)
+
+        # the score-9 item survives the cap even though it's the oldest, and
+        # the surviving set is still returned newest-first for output
+        self.assertEqual(
+            [item.id for item in feeds["research"]], ["new-minor", "old-important"]
+        )
+
+    def test_unscored_items_keep_pure_recency_ordering_under_a_cap(self):
+        items = load_items_for_test(
+            [
+                {
+                    "id": "older",
+                    "title": "Older",
+                    "url": "https://example.com/older",
+                    "category": "research",
+                    "published_at": "2026-08-01T00:00:00Z",
+                },
+                {
+                    "id": "newer",
+                    "title": "Newer",
+                    "url": "https://example.com/newer",
+                    "category": "research",
+                    "published_at": "2026-08-27T00:00:00Z",
+                },
+            ]
+        )
+        config = {
+            "feeds": {"research": {"max_items": 1}},
+            "combined_feed": {"max_items": 300},
+        }
+
+        feeds, _ = route_items(dedupe_items(items), config, NOW)
+
+        self.assertEqual([item.id for item in feeds["research"]], ["newer"])
+
+    def test_processed_link_urls_reads_the_ledger(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            path = Path(tmp) / "processed_links.txt"
+            path.write_text("2026-08-26T15:00:00+00:00 https://example.com/seen\n", encoding="utf-8")
+
+            urls = processed_link_urls(path)
+
+        self.assertIn("https://example.com/seen", urls)
+
+    def test_processed_link_urls_handles_a_missing_file(self):
+        urls = processed_link_urls(Path("/tmp/definitely-does-not-exist.txt"))
+        self.assertEqual(urls, set())
 
     def test_category_routing_duplicate_urls_and_retention(self):
         items = load_items_for_test(

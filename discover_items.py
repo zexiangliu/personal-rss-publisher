@@ -23,7 +23,7 @@ from urllib.request import Request, urlopen
 import feedparser
 from bs4 import BeautifulSoup
 
-from rss_aggregator import extract_image_url, normalize_url, stable_guid
+from rss_aggregator import extract_image_url, normalize_url, processed_link_urls, stable_guid
 
 DEFAULT_CONFIG_PATH = Path("discovery_config.json")
 
@@ -41,6 +41,7 @@ def load_config(path: Path = DEFAULT_CONFIG_PATH) -> dict[str, Any]:
 
     config.setdefault("output_path", "items.discovered.jsonl")
     config.setdefault("dedupe_against", ["items.jsonl", "items.discovered.jsonl"])
+    config.setdefault("processed_links", "processed_links.txt")
     config.setdefault("defaults", {})
     config.setdefault("sources", [])
     defaults = config["defaults"]
@@ -63,6 +64,7 @@ def discover(config_path: Path = DEFAULT_CONFIG_PATH, now: datetime | None = Non
     known_urls = load_known_urls(
         [Path(path) for path in config["dedupe_against"]] + [output_path]
     )
+    known_urls |= processed_link_urls(Path(config["processed_links"]))
 
     new_items: list[dict[str, Any]] = []
     for source in config["sources"]:
