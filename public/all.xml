@@ -4,8 +4,38 @@
     <title>All</title>
     <link>https://zexiangliu.github.io/personal-rss-publisher/</link>
     <description>All personal RSS channels combined.</description>
-    <lastBuildDate>Tue, 01 Sep 2026 15:07:12 GMT</lastBuildDate>
+    <lastBuildDate>Tue, 01 Sep 2026 18:45:23 GMT</lastBuildDate>
     <generator>personal-rss-publisher</generator>
+    <item>
+      <title>美軍宣布開始空襲伊朗境內革命衛隊目標　伊媒：多地發生爆炸</title>
+      <link>https://www.hk01.com/即時國際/60385906/美軍宣布開始空襲伊朗境內革命衛隊目標-伊媒-多地發生爆炸</link>
+      <guid isPermaLink="false">hk01:60385906</guid>
+      <pubDate>Tue, 01 Sep 2026 18:32:30 GMT</pubDate>
+      <category>news</category>
+      <source url="https://www.hk01.com/zone/4/%E5%9C%8B%E9%9A%9B">香港01 國際</source>
+      <description>美國中央司令部9月1日表示，美國東部時間中午12點，美軍開始對伊朗境內的伊朗革命衛隊（IRGC）目標進行空襲。美國中央司令部在X稱，此前，伊朗革命</description>
+      <enclosure url="https://cdn.hk01.com/di/media/images/dw/20260814/1164879374705496064739280.jpeg/QtfZ8dIboa4nPXBKXlyOqjJ-TWY714xEf4LR8H-C0fA" length="0" type="image/jpeg"/>
+    </item>
+    <item>
+      <title>習近平抵達埃及開羅機場　發表書面講話</title>
+      <link>https://www.hk01.com/即時國際/60385910/習近平抵達埃及開羅機場-發表書面講話</link>
+      <guid isPermaLink="false">hk01:60385910</guid>
+      <pubDate>Tue, 01 Sep 2026 18:08:09 GMT</pubDate>
+      <category>news</category>
+      <source url="https://www.hk01.com/zone/4/%E5%9C%8B%E9%9A%9B">香港01 國際</source>
+      <description>中國國家主席習近平專機9月1日抵達開羅國際機場，展開對埃及訪問。他抵達埃及後發表書面講話，稱中國和埃及同為全球南方重要成員，應當踐行真正的</description>
+      <enclosure url="https://cdn.hk01.com/di/media/images/dw/20260902/1171639935644471296850427.jpeg/Ge0V5wFIuzZyR0hW-hFOJzGMzR6K3pZ46J5IkOieSJA" length="0" type="image/jpeg"/>
+    </item>
+    <item>
+      <title>習近平專機抵達開羅機場　展開對埃及訪問</title>
+      <link>https://www.hk01.com/即時國際/60385898/習近平專機抵達開羅機場-展開對埃及訪問</link>
+      <guid isPermaLink="false">hk01:60385898</guid>
+      <pubDate>Tue, 01 Sep 2026 16:02:08 GMT</pubDate>
+      <category>news</category>
+      <source url="https://www.hk01.com/zone/4/%E5%9C%8B%E9%9A%9B">香港01 國際</source>
+      <description>中國國家主席習近平專機9月1日抵達開羅國際機場，展開對埃及訪問。</description>
+      <enclosure url="https://cdn.hk01.com/di/media/images/dw/20260902/1171612277359513600401259.png/L8PP2aFUuGAoIBw00E2KOD-0akSaqPRN464eG-OuHhs" length="0" type="image/jpeg"/>
+    </item>
     <item>
       <title>芬蘭總統稱中國不會容許俄羅斯用核武　北京：繼續致力勸和促談</title>
       <link>https://www.hk01.com/即時國際/60385868/芬蘭總統稱中國不會容許俄羅斯用核武-北京-繼續致力勸和促談</link>
@@ -235,16 +265,6 @@
       <source url="https://www.hk01.com/zone/4/%E5%9C%8B%E9%9A%9B">香港01 國際</source>
       <description>為報復美軍打擊拉臘克島（Larak），伊朗以導彈攻擊駐約旦境內的兩個美國空軍基地。美國總統特朗普（Donald Trump，又譯川普）8月31日對此表示，將</description>
       <enclosure url="https://cdn.hk01.com/di/media/images/dw/20260818/1166382025192509440025461.jpeg/-dvTwbHzBkgR4bY2fsFoFJDr8u3N5pKt7Ml4gOzJeIA" length="0" type="image/jpeg"/>
-    </item>
-    <item>
-      <title>Google Map把安大略湖更名美國湖　僅美國用戶適用</title>
-      <link>https://www.hk01.com/即時國際/60385498/google-map把安大略湖更名美國湖-僅美國用戶適用</link>
-      <guid isPermaLink="false">hk01:60385498</guid>
-      <pubDate>Mon, 31 Aug 2026 18:02:57 GMT</pubDate>
-      <category>news</category>
-      <source url="https://www.hk01.com/zone/4/%E5%9C%8B%E9%9A%9B">香港01 國際</source>
-      <description>Google於8月30日發聲明稱，因為美國總統特朗普（Donald Trump，又譯川普）的行政命令，已將美國用戶Google Map的「安大略湖」（Lake Ontario）改為</description>
-      <enclosure url="https://cdn.hk01.com/di/media/images/dw/20260901/1171270818034880512075296.jpeg/5-d4oHlbD6RLDes08Pnp611G2eb1E7MVQlktHEJZLRw" length="0" type="image/jpeg"/>
     </item>
     <item>
       <title>GRASP：在 World Model 里做长时域梯度规划</title>
