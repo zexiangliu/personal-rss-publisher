@@ -4,8 +4,18 @@
     <title>All</title>
     <link>https://zexiangliu.github.io/personal-rss-publisher/</link>
     <description>All personal RSS channels combined.</description>
-    <lastBuildDate>Sat, 05 Sep 2026 19:21:08 GMT</lastBuildDate>
+    <lastBuildDate>Sat, 05 Sep 2026 21:36:32 GMT</lastBuildDate>
     <generator>personal-rss-publisher</generator>
+    <item>
+      <title>殺3子女案陪審團僵持法官宣布審判無效　全國激辯母親受害或有罪</title>
+      <link>https://www.hk01.com/即時國際/60387220/殺3子女案陪審團僵持法官宣布審判無效-全國激辯母親受害或有罪</link>
+      <guid isPermaLink="false">hk01:60387220</guid>
+      <pubDate>Sat, 05 Sep 2026 20:39:05 GMT</pubDate>
+      <category>news</category>
+      <source url="https://www.hk01.com/zone/4/%E5%9C%8B%E9%9A%9B">香港01 國際</source>
+      <description>美國馬薩諸塞州36歲護士克蘭西（Lindsay Clancy）被控勒死三名年幼子女的案件，陪審團商議40小時仍無法達成一致裁決，法官宣布審判無效。案件觸發</description>
+      <enclosure url="https://cdn.hk01.com/di/media/images/dw/20260905/1172871633090646016702384.jpeg/XEFK0kUHOas1-4DIEFAEgcOXhTpTpjvvhhTITIYUyEw" length="0" type="image/jpeg"/>
+    </item>
     <item>
       <title>美軍反擊伊朗打中2油輪　司令：你若開火我便施更高經濟代價</title>
       <link>https://www.hk01.com/即時國際/60387214/美軍反擊伊朗打中2油輪-司令-你若開火我便施更高經濟代價</link>
@@ -295,16 +305,6 @@
       <source url="https://www.hk01.com/zone/4/%E5%9C%8B%E9%9A%9B">香港01 國際</source>
       <description>美國總統特朗普（Donald Trump）9月4日表示，計劃從其控制的超級政治行動委員會MAGA Inc撥出4億至5億美元，協助共和黨應付11月中期選舉，試圖平息</description>
       <enclosure url="https://cdn.hk01.com/di/media/images/dw/20260903/1172273323619389440641582.jpeg/rC7iKzQjj75OzU8fe2MavM_ltwi-oAAGCt5GgQreRoE" length="0" type="image/jpeg"/>
-    </item>
-    <item>
-      <title>被指暫停與加拿大反壟斷合作　美國司法部：不實</title>
-      <link>https://www.hk01.com/即時國際/60387025/被指暫停與加拿大反壟斷合作-美國司法部-不實</link>
-      <guid isPermaLink="false">hk01:60387025</guid>
-      <pubDate>Fri, 04 Sep 2026 20:07:48 GMT</pubDate>
-      <category>news</category>
-      <source url="https://www.hk01.com/zone/4/%E5%9C%8B%E9%9A%9B">香港01 國際</source>
-      <description>美媒9月4日引述消息稱，美國司法部反壟斷部門本周初被指示暫停與加拿大政府的所有合作，包括案件協作及政策交流，這是美加貿易爭端持續升溫的最新</description>
-      <enclosure url="https://cdn.hk01.com/di/media/images/dw/20260825/1168890696501825536461830.jpeg/Sm6U6I3cyJxM25t_tliT3IzE6YcAkAtX4ImXquCJl6o" length="0" type="image/jpeg"/>
     </item>
     <item>
       <title>GRASP：在 World Model 里做长时域梯度规划</title>
