@@ -4,8 +4,18 @@
     <title>All</title>
     <link>https://zexiangliu.github.io/personal-rss-publisher/</link>
     <description>All personal RSS channels combined.</description>
-    <lastBuildDate>Sat, 12 Sep 2026 21:36:18 GMT</lastBuildDate>
+    <lastBuildDate>Sat, 12 Sep 2026 23:16:36 GMT</lastBuildDate>
     <generator>personal-rss-publisher</generator>
+    <item>
+      <title>烏克蘭官員：基輔籌備10月恢復三方會談</title>
+      <link>https://www.hk01.com/即時國際/60389449/烏克蘭官員-基輔籌備10月恢復三方會談</link>
+      <guid isPermaLink="false">hk01:60389449</guid>
+      <pubDate>Sat, 12 Sep 2026 23:13:48 GMT</pubDate>
+      <category>news</category>
+      <source url="https://www.hk01.com/zone/4/%E5%9C%8B%E9%9A%9B">香港01 國際</source>
+      <description>烏克蘭總統澤連斯基（Volodymyr Zelenskiy）幕僚長布達諾夫（Kyrylo Budanov）9月12日表示，基輔正為10月恢復旨在結束俄烏戰爭的三方會談作準備。</description>
+      <enclosure url="https://cdn.hk01.com/di/media/images/dw/20260822/1167777975299477504148523.jpeg/c2o58SKcxxwMP_d_ClqH9E-d8tmMCH7aRe-cmUXvnJk" length="0" type="image/jpeg"/>
+    </item>
     <item>
       <title>金磚峰會通過新德里宣言　譴責單邊關稅　支持安理會改革</title>
       <link>https://www.hk01.com/即時國際/60389446/金磚峰會通過新德里宣言-譴責單邊關稅-支持安理會改革</link>
@@ -275,16 +285,6 @@
       <source url="https://www.hk01.com/zone/4/%E5%9C%8B%E9%9A%9B">香港01 國際</source>
       <description>為期兩天的金磚國家（BRICS）峰會9月12日在印度新德里登場，中國國家主席習近平、俄羅斯總統普京（Vladimir Putin）等均將出席，據印媒報道，中國</description>
       <enclosure url="https://cdn.hk01.com/di/media/images/dw/20260911/1175185968462827520578620.jpeg/5d0UiEeIGUx6Zx2QGPBLsiNF_ZCFFziQF96KxRfeisU" length="0" type="image/jpeg"/>
-    </item>
-    <item>
-      <title>普京與莫迪會晤尋求加深關係　籲金磚國家建新平台抗衡西方</title>
-      <link>https://www.hk01.com/即時國際/60389294/普京與莫迪會晤尋求加深關係-籲金磚國家建新平台抗衡西方</link>
-      <guid isPermaLink="false">hk01:60389294</guid>
-      <pubDate>Fri, 11 Sep 2026 23:09:38 GMT</pubDate>
-      <category>news</category>
-      <source url="https://www.hk01.com/zone/4/%E5%9C%8B%E9%9A%9B">香港01 國際</source>
-      <description>印度總理莫迪（Narendra Modi）與俄羅斯總統普京（Vladimir Putin）9月11日在新德里會晤，同意加深兩國長期關係。普京呼籲金磚國家（BRICS）建立一</description>
-      <enclosure url="https://cdn.hk01.com/di/media/images/dw/20260912/1175322328200908800260598.jpeg/PMFBy29YhgNXw0Qr814gU0wIsLoONPxeoyDvqaMg76k" length="0" type="image/jpeg"/>
     </item>
     <item>
       <title>GRASP：在 World Model 里做长时域梯度规划</title>
