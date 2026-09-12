@@ -4,8 +4,28 @@
     <title>News</title>
     <link>https://zexiangliu.github.io/personal-rss-publisher/</link>
     <description>Curated personal news items.</description>
-    <lastBuildDate>Sat, 12 Sep 2026 17:24:18 GMT</lastBuildDate>
+    <lastBuildDate>Sat, 12 Sep 2026 19:36:41 GMT</lastBuildDate>
     <generator>personal-rss-publisher</generator>
+    <item>
+      <title>布魯塞爾機場現無人機　航班中斷半小時</title>
+      <link>https://www.hk01.com/即時國際/60389439/布魯塞爾機場現無人機-航班中斷半小時</link>
+      <guid isPermaLink="false">hk01:60389439</guid>
+      <pubDate>Sat, 12 Sep 2026 18:17:44 GMT</pubDate>
+      <category>news</category>
+      <source url="https://www.hk01.com/zone/4/%E5%9C%8B%E9%9A%9B">香港01 國際</source>
+      <description>比利時布魯塞爾機場9月11日傍晚因發現無人機，航空交通中斷約半小時。路透社報道，空中交通管制營運商Skeyes發言人維爾維根（Kurt Verwilgen）表示</description>
+      <enclosure url="https://cdn.hk01.com/di/media/images/dw/20260714/1153792972634984448192874.jpeg/EkU8lfgszu4HlwSveoSj19awvS88O3IBfrRvmX60b5k" length="0" type="image/jpeg"/>
+    </item>
+    <item>
+      <title>加拿大抵制美國貨　超市轉購摩洛哥西班牙等地農產品</title>
+      <link>https://www.hk01.com/即時國際/60389438/加拿大抵制美國貨-超市轉購摩洛哥西班牙等地農產品</link>
+      <guid isPermaLink="false">hk01:60389438</guid>
+      <pubDate>Sat, 12 Sep 2026 17:31:39 GMT</pubDate>
+      <category>news</category>
+      <source url="https://www.hk01.com/zone/4/%E5%9C%8B%E9%9A%9B">香港01 國際</source>
+      <description>美國與加拿大貿易戰持續，加拿大消費者發起抵制美貨行動，迫使當地超市改善產地標籤並尋找新供應來源。有超市已轉從摩洛哥、南非、西班牙、巴西及洪</description>
+      <enclosure url="https://cdn.hk01.com/di/media/images/dw/20260825/1168890696501825536461830.jpeg/Sm6U6I3cyJxM25t_tliT3IzE6YcAkAtX4ImXquCJl6o" length="0" type="image/jpeg"/>
+    </item>
     <item>
       <title>金磚峰會｜習近平莫迪普京齊植樹　象徵團結合作</title>
       <link>https://www.hk01.com/即時國際/60389437/金磚峰會-習近平莫迪普京齊植樹-象徵團結合作</link>
@@ -275,16 +295,6 @@
       <source url="https://www.hk01.com/zone/4/%E5%9C%8B%E9%9A%9B">香港01 國際</source>
       <description>法國交通部長9月11日說，北部魯昂和卡昂之間發生火車脫軌事故，約20人受傷。法國交通部長塔巴羅在X表示，11日一列載有180名乘客的TER列車在塞納-濱</description>
       <enclosure url="https://cdn.hk01.com/di/media/images/dw/20260912/1175290464325079040980632.jpeg/v1oSZy1E_zKbbIfg5xlKaYr_1ztny19ugBdzUIAXc1A" length="0" type="image/jpeg"/>
-    </item>
-    <item>
-      <title>俄羅斯官員將出席休斯敦G20能源會議　美國白宮確認</title>
-      <link>https://www.hk01.com/即時國際/60389285/俄羅斯官員將出席休斯敦g20能源會議-美國白宮確認</link>
-      <guid isPermaLink="false">hk01:60389285</guid>
-      <pubDate>Fri, 11 Sep 2026 18:23:20 GMT</pubDate>
-      <category>news</category>
-      <source url="https://www.hk01.com/zone/4/%E5%9C%8B%E9%9A%9B">香港01 國際</source>
-      <description>美國白宮官員9月11日表示，一名俄羅斯官員將出席下週在休斯敦舉行的二十國集團（G20）能源會議。路透社報道，美國上月在北卡羅來納州舉行的G20會議</description>
-      <enclosure url="https://cdn.hk01.com/di/media/images/dw/20250228/972143569970139136708631.jpeg/Y6Ex8cz4JyDlZuXEKzBmPTdAQlOVhpZYQI4bOkCOGzo" length="0" type="image/jpeg"/>
     </item>
   </channel>
 </rss>
