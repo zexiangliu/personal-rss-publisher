@@ -4,8 +4,18 @@
     <title>All</title>
     <link>https://zexiangliu.github.io/personal-rss-publisher/</link>
     <description>All personal RSS channels combined.</description>
-    <lastBuildDate>Wed, 16 Sep 2026 17:14:19 GMT</lastBuildDate>
+    <lastBuildDate>Wed, 16 Sep 2026 20:22:31 GMT</lastBuildDate>
     <generator>personal-rss-publisher</generator>
+    <item>
+      <title>與特朗普唱反調？　古特雷斯警告AI風險</title>
+      <link>https://www.hk01.com/即時國際/60390823/與特朗普唱反調-古特雷斯警告ai風險</link>
+      <guid isPermaLink="false">hk01:60390823</guid>
+      <pubDate>Wed, 16 Sep 2026 17:24:24 GMT</pubDate>
+      <category>news</category>
+      <source url="https://www.hk01.com/zone/4/%E5%9C%8B%E9%9A%9B">香港01 國際</source>
+      <description>聯合國秘書長古特雷斯（Antonio Guterres）9月16日警告全球領袖，人工智能（AI）迅速發展帶來不可忽視的風險，與美國總統特朗普（Donald Trump）認</description>
+      <enclosure url="https://cdn.hk01.com/di/media/images/dw/20260131/1094251974410375168967083.jpeg/-IpV8s1CjGsueVbJKHBF1N5cIaKwdTK7agZjzmoGY84" length="0" type="image/jpeg"/>
+    </item>
     <item>
       <title>普京籲投票撐對烏戰爭　稱定調杜馬選舉為成民意指標</title>
       <link>https://www.hk01.com/即時國際/60390818/普京籲投票撐對烏戰爭-稱定調杜馬選舉為成民意指標</link>
@@ -275,26 +285,6 @@
       <source url="https://www.hk01.com/zone/4/%E5%9C%8B%E9%9A%9B">香港01 國際</source>
       <description>美國聯邦法官第二度阻止甘迺迪表演藝術中心在建築外牆加上總統特朗普（Donald Trump）名字後，特朗普任主席的甘迺迪表演藝術中心董事會9月15日投票</description>
       <enclosure url="https://cdn.hk01.com/di/media/images/dw/20260915/1176528650154020864034591.jpeg/Ry_WLFF1xtHchkFPcTuw4EVLCNvFh4hJJSautiUmrrY" length="0" type="image/jpeg"/>
-    </item>
-    <item>
-      <title>英美荷聯合警示　伊朗間諜軟件針對異見人士</title>
-      <link>https://www.hk01.com/即時國際/60390356/英美荷聯合警示-伊朗間諜軟件針對異見人士</link>
-      <guid isPermaLink="false">hk01:60390356</guid>
-      <pubDate>Tue, 15 Sep 2026 18:32:48 GMT</pubDate>
-      <category>news</category>
-      <source url="https://www.hk01.com/zone/4/%E5%9C%8B%E9%9A%9B">香港01 國際</source>
-      <description>英國、美國及荷蘭9月15日聯合發佈網絡安全諮詢，指伊朗國家支持的黑客使用名為CHOSEN BRICK的間諜軟件，針對異見人士、活動人士及記者。路透社報道</description>
-      <enclosure url="https://cdn.hk01.com/di/media/images/dw/20251223/1080085627044630528436857.jpeg/sSRR6xeqM_dH7WdPa2yhq12bEewZ3g2dKICNjCiAjYw" length="0" type="image/jpeg"/>
-    </item>
-    <item>
-      <title>貝森特撐美日聯手干預日圓　稱成本溫和利美出口</title>
-      <link>https://www.hk01.com/即時國際/60390351/貝森特撐美日聯手干預日圓-稱成本溫和利美出口</link>
-      <guid isPermaLink="false">hk01:60390351</guid>
-      <pubDate>Tue, 15 Sep 2026 17:31:59 GMT</pubDate>
-      <category>news</category>
-      <source url="https://www.hk01.com/zone/4/%E5%9C%8B%E9%9A%9B">香港01 國際</source>
-      <description>美國財長貝森特（Scott Bessent）9月15日為美國與日本聯手干預匯市、支持日圓的行動辯護。路透社報道，貝森特在眾議院金融服務委員會聽證會上稱，</description>
-      <enclosure url="https://cdn.hk01.com/di/media/images/dw/20260909/1174352358507810816435827.jpeg/-nx871OL3ZgihhDOExiKwFiCs9fSbV6WT531dE-d9XQ" length="0" type="image/jpeg"/>
     </item>
     <item>
       <title>GRASP：在 World Model 里做长时域梯度规划</title>
