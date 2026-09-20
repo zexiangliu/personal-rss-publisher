@@ -4,8 +4,18 @@
     <title>News</title>
     <link>https://zexiangliu.github.io/personal-rss-publisher/</link>
     <description>Curated personal news items.</description>
-    <lastBuildDate>Sun, 20 Sep 2026 16:26:41 GMT</lastBuildDate>
+    <lastBuildDate>Sun, 20 Sep 2026 19:00:00 GMT</lastBuildDate>
     <generator>personal-rss-publisher</generator>
+    <item>
+      <title>特朗普稱正就伊朗問題作重大決策　可能願與伊朗總統會面</title>
+      <link>https://www.hk01.com/即時國際/60391944/特朗普稱正就伊朗問題作重大決策-可能願與伊朗總統會面</link>
+      <guid isPermaLink="false">hk01:60391944</guid>
+      <pubDate>Sun, 20 Sep 2026 16:40:47 GMT</pubDate>
+      <category>news</category>
+      <source url="https://www.hk01.com/zone/4/%E5%9C%8B%E9%9A%9B">香港01 國際</source>
+      <description>美國總統特朗普（Donald Trump，又譯川普）9月20日表示，正就是否對伊朗發動災難性軍事打擊作出決策，揚言：「我的問題是，我何時及是否要將整個國</description>
+      <enclosure url="https://cdn.hk01.com/di/media/images/dw/20260903/1172273323619389440641582.jpeg/rC7iKzQjj75OzU8fe2MavM_ltwi-oAAGCt5GgQreRoE" length="0" type="image/jpeg"/>
+    </item>
     <item>
       <title>特朗普稱擬將「美版凱旋門」兼作軍事設施　容納大量無人機與彈藥</title>
       <link>https://www.hk01.com/即時國際/60391918/特朗普稱擬將-美版凱旋門-兼作軍事設施-容納大量無人機與彈藥</link>
@@ -255,26 +265,6 @@
       <source url="https://www.hk01.com/zone/4/%E5%9C%8B%E9%9A%9B">香港01 國際</source>
       <description>TikTok及其母公司中國字節跳動（ByteDance）與美國司法部達成的4億美元私隱和解協議遇到阻礙。美國聯邦地區法官吳喬治（George H. Wu）9月18日表示</description>
       <enclosure url="https://cdn.hk01.com/di/media/images/dw/20260902/1171650551495135232128753.jpeg/ljqvJw_JxFXVS4C31lDa0S7OiXMRiaABfpIAAH6SAAA" length="0" type="image/jpeg"/>
-    </item>
-    <item>
-      <title>美國簽制裁俄伊法案　中國商務部：反對次級制裁　保留反制權利</title>
-      <link>https://www.hk01.com/即時國際/60391696/美國簽制裁俄伊法案-中國商務部-反對次級制裁-保留反制權利</link>
-      <guid isPermaLink="false">hk01:60391696</guid>
-      <pubDate>Sat, 19 Sep 2026 18:10:21 GMT</pubDate>
-      <category>news</category>
-      <source url="https://www.hk01.com/zone/4/%E5%9C%8B%E9%9A%9B">香港01 國際</source>
-      <description>中國商務部9月19日回應美國將《2026年格雷厄姆制裁俄羅斯和伊朗法案》簽署成法，批評美方缺乏聯合國授權和國際法依據，實施單邊制裁及次級制裁，表</description>
-      <enclosure url="https://cdn.hk01.com/di/media/images/dw/20260916/1176919805140144128274389.png/hxamW9SKBcmXNkSyYwigYPgQhpror3ejXt1S6l7dUuo" length="0" type="image/jpeg"/>
-    </item>
-    <item>
-      <title>丹麥強調不損主權　特朗普：協議讓美國永久控制格陵蘭</title>
-      <link>https://www.hk01.com/即時國際/60391695/丹麥強調不損主權-特朗普-協議讓美國永久控制格陵蘭</link>
-      <guid isPermaLink="false">hk01:60391695</guid>
-      <pubDate>Sat, 19 Sep 2026 17:40:12 GMT</pubDate>
-      <category>news</category>
-      <source url="https://www.hk01.com/zone/4/%E5%9C%8B%E9%9A%9B">香港01 國際</source>
-      <description>美國、丹麥及格陵蘭9月18日達成協議，美國將在格陵蘭發展重要軍事存在，並禁止美國對手在當地建立基地。美國總統特朗普（Donald Trump）稱協議讓美</description>
-      <enclosure url="https://cdn.hk01.com/di/media/images/dw/20260919/1177916230254727168581460.jpeg/wKNd4PnrqGnRnohlgOgzMD5WeVimkmaXUXELVVFxC1U" length="0" type="image/jpeg"/>
     </item>
   </channel>
 </rss>
