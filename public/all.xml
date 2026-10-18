@@ -4,8 +4,18 @@
     <title>All</title>
     <link>https://zexiangliu.github.io/personal-rss-publisher/</link>
     <description>All personal RSS channels combined.</description>
-    <lastBuildDate>Sun, 18 Oct 2026 17:29:59 GMT</lastBuildDate>
+    <lastBuildDate>Sun, 18 Oct 2026 19:34:57 GMT</lastBuildDate>
     <generator>personal-rss-publisher</generator>
+    <item>
+      <title>意大利米蘭有蒙面示威者搶掠商店　警方以催淚彈水炮驅趕</title>
+      <link>https://www.hk01.com/即時國際/60401076/意大利米蘭有蒙面示威者搶掠商店-警方以催淚彈水炮驅趕</link>
+      <guid isPermaLink="false">hk01:60401076</guid>
+      <pubDate>Sun, 18 Oct 2026 18:44:56 GMT</pubDate>
+      <category>news</category>
+      <source url="https://www.hk01.com/zone/4/%E5%9C%8B%E9%9A%9B">香港01 國際</source>
+      <description>法國、意大利、葡萄牙、比利時等歐洲多國於10月17日爆發示威活動，抗議生活成本高企、公共服務不足、教育資源短缺及政府財政緊縮措施等問題。其中</description>
+      <enclosure url="https://cdn.hk01.com/di/media/images/dw/20261019/1188679450275876864648395.png/gYC8a8sXv-kyRWNHsPGW_4wZjqG6y66kBqZ0UQamdFE" length="0" type="image/jpeg"/>
+    </item>
     <item>
       <title>委內瑞拉代總統公布石油協定　料未來五年獲近6千億投資</title>
       <link>https://www.hk01.com/即時國際/60401056/委內瑞拉代總統公布石油協定-料未來五年獲近6千億投資</link>
@@ -275,16 +285,6 @@
       <source url="https://www.hk01.com/zone/4/%E5%9C%8B%E9%9A%9B">香港01 國際</source>
       <description>印度媒體10月17日報道，在加爾各答（Kolkata）舉行的慶祝印度教杜爾迦女神節（Durga Puja，又譯難近母普祭）的活動現場發生人踩人事故，造成至少18</description>
       <enclosure url="https://cdn.hk01.com/di/media/images/dw/20261018/1188376270338002944582094.jpeg/1yI6-cpxySCAOz7efZxclPr5cU6GNtLNXnfgvV534L0" length="0" type="image/jpeg"/>
-    </item>
-    <item>
-      <title>澤連斯基：特朗普叫停對俄制裁如獎勵普京　冀G20峰會與美俄會面</title>
-      <link>https://www.hk01.com/即時國際/60400849/澤連斯基-特朗普叫停對俄制裁如獎勵普京-冀g20峰會與美俄會面</link>
-      <guid isPermaLink="false">hk01:60400849</guid>
-      <pubDate>Sat, 17 Oct 2026 19:28:15 GMT</pubDate>
-      <category>news</category>
-      <source url="https://www.hk01.com/zone/4/%E5%9C%8B%E9%9A%9B">香港01 國際</source>
-      <description>烏克蘭總統澤連斯基（Volodymyr Zelenskyy）表示，美國總統特朗普（Donald Trump，又譯川普）豁免執行部份對俄羅斯的制裁措施，就如同對俄羅斯總統</description>
-      <enclosure url="https://cdn.hk01.com/di/media/images/dw/20261018/1188327001258201088587329.jpeg/JZA_KVjxiQ6-5ItH2VJIbM5bRKPwq3813S7pY90u6WM" length="0" type="image/jpeg"/>
     </item>
     <item>
       <title>GRASP：在 World Model 里做长时域梯度规划</title>
